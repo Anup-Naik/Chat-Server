@@ -1,0 +1,32 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "A Chat App",
+  "keywords": [
+    "Chat",
+    "Chat App"
+  ],
+  "license": "MIT",
+  "author": "Anup Naik",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./dist/server.js",
+    "watch:ts": "tsc --watch"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "eslint": "^9.25.0",
+    "globals": "^16.0.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1"
+  }
+}
