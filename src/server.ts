@@ -16,3 +16,11 @@ const PORT = +process.env.PORT! || 3000;
 http.createServer(app).listen(PORT, "127.0.0.1", () => {
   console.log(`running server on ${PORT}`);
 });
+
+process.on("uncaughtException", (err) => {
+  console.error(err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error(err);
+});

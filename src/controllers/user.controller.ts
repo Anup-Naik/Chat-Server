@@ -1,16 +1,36 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { Types } from "mongoose";
 import Users from "../models/user.model.js";
+import { ExpressError } from "../utils/customError.js";
 
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { username, email, password, avatar } = req.body;
-  let newUser;
-  if (username && email && password && avatar) {
-    newUser = await Users.createOne({
-      username,
-      email,
-      password,
-      avatar,
-    });
+
+  if (!(username && email && password && avatar)) {
+    return next(new ExpressError(400, "Mandatory Fields Required"));
   }
+  const newUser = await Users.createOne({
+    username,
+    email,
+    password,
+    avatar,
+  });
   res.status(200).json({ status: "success", data: { data: newUser } });
+};
+
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const User = await Users.readOne(new Types.ObjectId(id));
+  if (!User) {
+    return next(new ExpressError(404, "User does not exist"));
+  }
+  res.status(200).json({ status: "success", data: { data: User } });
 };
