@@ -34,3 +34,47 @@ export const getUser = async (
   }
   res.status(200).json({ status: "success", data: { data: User } });
 };
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const users = await Users.readAll();
+  if (!users) {
+    return next(new ExpressError(404, "No Users Found"));
+  }
+  res.status(200).json({ status: "success", data: { data: users } });
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.body.entries().filter(([key, value]: [string, string]) => {
+    return (
+      value !== undefined &&
+      ["username", "password", "email", "avatar"].includes(key)
+    );
+  });
+  const { id } = req.params;
+  const updatedUser = await Users.updateOne(
+    new Types.ObjectId(id),
+    Object.fromEntries(user)
+  );
+  res.status(203).json({ status: "success", data: { data: updatedUser } });
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const deletedUser = await Users.updateOne(new Types.ObjectId(id), {
+    status: "deleted",
+  });
+
+  res.status(204).json({ status: "success", data: {} });
+};
