@@ -1,21 +1,24 @@
-import mongoose from "mongoose";
+import { Schema, model, Types } from "mongoose";
+import { IChat } from "./types.model.js";
+import CRUD from "./crud.js";
 
-const chatSchema = new mongoose.Schema({
+const chatSchema = new Schema<IChat>({
   name: {
     type: String,
   },
   messages: [
     {
-      type: mongoose.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "Message",
     },
   ],
   users: [
     {
-      type: mongoose.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "User",
     },
   ],
 });
 
-const Chat = mongoose.model("Chat", chatSchema);
+const Chat = model<IChat>("Chat", chatSchema);
+export default new CRUD<IChat>(Chat);

@@ -1,6 +1,9 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
+import { IUser, UserDocument } from "./types.model.js";
+import CRUD from "./crud.js";
+import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema<IUser>({
   username: {
     type: String,
     unique: true,
@@ -10,19 +13,44 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: function (val) {
+        return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(val);
+      },
+      message: "Enter a valid email",
+    },
   },
   password: {
     type: String,
     required: true,
   },
+  avatar: {
+    type: String,
+  },
   joinedAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   status: {
     type: String,
     enum: ["active", "deleted"],
+    select: false,
   },
 });
 
-const User = mongoose.model("User", userSchema);
+userSchema.pre("save", function (this: UserDocument, next) {
+  if (this.isModified("password")) {
+    bcrypt.hash(this.password, 10, (err, hash) => {
+      if (hash) {
+        this.password = hash;
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
+const User = model<IUser>("User", userSchema);
+
+export default new CRUD<IUser>(User);

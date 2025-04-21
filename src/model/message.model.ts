@@ -1,24 +1,27 @@
-import mongoose from "mongoose";
+import { Schema, model, Types } from "mongoose";
+import { IMessage } from "./types.model.js";
+import CRUD from "./crud.js";
 
-const messageSchema = new mongoose.Schema({
+const messageSchema = new Schema<IMessage>({
   message: {
     type: String,
-    requires: true,
+    required: true,
   },
   user: {
-    type: mongoose.Types.ObjectId,
+    type: Types.ObjectId,
     ref: "User",
     required: true,
   },
   chat: {
-    type: mongoose.Types.ObjectId,
+    type: Types.ObjectId,
     ref: "Chat",
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 
-const Message = mongoose.model('Message',messageSchema);
+const Message = model<IMessage>("Message", messageSchema);
 
+export default new CRUD<IMessage>(Message);
