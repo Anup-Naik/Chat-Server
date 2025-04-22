@@ -1,5 +1,5 @@
 import { Schema, model, Types } from "mongoose";
-import { IGroup } from "./model.types.js";
+import { IGroup } from "./model.js";
 import CRUD from "./CRUD.js";
 
 const groupSchema = new Schema<IGroup>(

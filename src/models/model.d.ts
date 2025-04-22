@@ -13,4 +13,4 @@ export interface IGroup {
   avatar:string;
   users: Types.ObjectId[] | IUser[];
 }
-export type ChatDocument = HydratedDocument<IGroup>;
+export type GroupDocument = HydratedDocument<IGroup>;

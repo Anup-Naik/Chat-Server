@@ -1,27 +1,26 @@
 import { NextFunction, Request, Response } from "express";
-import { Types } from "mongoose";
 import Users from "../models/user.model.js";
 import { ExpressError } from "../utils/customError.js";
+import { User } from "./controller.js";
 
 export const createUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { username, email, password,confirmPassword, avatar } = req.body;
+  const { username, email, password, confirmPassword, avatar }: User = req.body;
 
-  if (!(username && email && password &&confirmPassword)) {
+  if (!(username && email && password && confirmPassword)) {
     return next(new ExpressError(400, "Mandatory Fields Required"));
   }
-  if (password !==confirmPassword) {
+  if (password !== confirmPassword) {
     return next(new ExpressError(400, "Passwords do not match"));
   }
 
-
   const newUser = await Users.createOne({
-    username,
-    email,
-    password,
+    username: username.trim(),
+    email: email.trim(),
+    password: password.trim(),
     avatar,
   });
   res.status(201).json({ status: "success", data: { data: newUser } });
@@ -36,7 +35,7 @@ export const getUser = async (
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));
   }
-  const User = await Users.readOne(new Types.ObjectId(id));
+  const User = await Users.readOne(id);
   if (!User) {
     return next(new ExpressError(404, "User does not exist"));
   }
@@ -60,16 +59,17 @@ export const updateUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username, password, email, avatar } = req.body;
-  let user = { username, password, email, avatar };
-  user = Object.entries(user).filter(([key, value]: [string, string]) => {
+  const { username, password, email, avatar }: User = req.body;
+  let user:Partial<User> = { username, password, email, avatar };
+  user = Object.entries(user).filter(([key, value]) => {
     return value && ["username", "password", "email", "avatar"].includes(key);
   });
+
   const { id } = req.params;
-  const updatedUser = await Users.updateOne(
-    new Types.ObjectId(id),
-    Object.fromEntries(user)
-  );
+  if (!id) {
+    return next(new ExpressError(400, "Invalid Id"));
+  }
+  const updatedUser = await Users.updateOne(id, Object.fromEntries(user));
   res.status(200).json({ status: "success", data: { data: updatedUser } });
 };
 
@@ -79,7 +79,9 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-
-  await Users.deleteOne(new Types.ObjectId(id));
+  if (!id) {
+    return next(new ExpressError(400, "Invalid Id"));
+  }
+  await Users.deleteOne(id);
   res.status(204).json({ status: "success", data: {} });
 };

@@ -9,8 +9,8 @@ export default class CRUD<T> {
     return newdoc;
   }
 
-  async readOne(id: Types.ObjectId): Promise<HydratedDocument<T> | null> {
-    return await this.model.findOne({ _id: id });
+  async readOne(id: string): Promise<HydratedDocument<T> | null> {
+    return await this.model.findOne({ _id: new Types.ObjectId(id) });
   }
 
   async readAll(): Promise<HydratedDocument<T>[]> {
@@ -18,10 +18,10 @@ export default class CRUD<T> {
   }
 
   async updateOne(
-    id: Types.ObjectId,
+    id: string,
     doc: Partial<T>
   ): Promise<HydratedDocument<T>> {
-    const updatedDoc = await this.model.findByIdAndUpdate(id, doc, {
+    const updatedDoc = await this.model.findByIdAndUpdate(new Types.ObjectId(id), doc, {
       new: true,
       runValidators:true,
     });
@@ -31,7 +31,7 @@ export default class CRUD<T> {
     return updatedDoc;
   }
 
-  async deleteOne(id: Types.ObjectId): Promise<HydratedDocument<T> | null> {
-    return await this.model.findByIdAndDelete(id);
+  async deleteOne(id: string): Promise<HydratedDocument<T> | null> {
+    return await this.model.findByIdAndDelete(new Types.ObjectId(id));
   }
 }

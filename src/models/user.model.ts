@@ -1,5 +1,5 @@
 import { Schema, UpdateQuery, model } from "mongoose";
-import { IUser } from "./model.types.js";
+import { IUser } from "./model.js";
 import CRUD from "./CRUD.js";
 import bcrypt from "bcryptjs";
 
