@@ -1,6 +1,6 @@
-import http from "http";
+import { createServer } from "http";
 import { connect } from "mongoose";
-import io from "socket.io";
+import { Server } from "socket.io";
 import dotenv from "dotenv";
 
 import app from "./app.js";
@@ -12,8 +12,21 @@ connect(process.env.MONGO_URL as string)
   })
   .catch(console.error);
 
-const PORT = +process.env.PORT! || 3000;
-http.createServer(app).listen(PORT, "127.0.0.1", () => {
+const server = createServer(app);
+
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  socket.on("message", (data) => {
+    console.log("connected", socket.id, data);
+  });
+});
+// setInterval(() => {
+//   io.emit("Blah", "POOf");
+// }, 3000);
+
+const PORT = Number(process.env.PORT!) || 3000;
+server.listen(PORT, "127.0.0.1", () => {
   console.log(`running server on ${PORT}`);
 });
 

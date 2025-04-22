@@ -52,9 +52,12 @@ export const updateUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const user = req.body.entries().filter(([key, value]: [string, string]) => {
+   
+  const { username, password, email, avatar } = req.body;
+  let user = { username, password, email, avatar };
+  user = Object.entries(user).filter(([key, value]: [string, string]) => {
     return (
-      value !== undefined &&
+      value &&
       ["username", "password", "email", "avatar"].includes(key)
     );
   });

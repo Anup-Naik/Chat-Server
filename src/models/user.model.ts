@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IUser, UserDocument } from "./types.model.js";
+import { IUser, UserDocument } from "./model.types.js";
 import CRUD from "./CRUD.js";
 import bcrypt from "bcryptjs";
 
@@ -8,6 +8,8 @@ const userSchema = new Schema<IUser>({
     type: String,
     unique: true,
     required: true,
+    minlength: 5,
+    maxlength: 10,
   },
   email: {
     type: String,
@@ -44,6 +46,26 @@ userSchema.pre("save", function (this: UserDocument, next) {
     bcrypt.hash(this.password, 10, (err, hash) => {
       if (hash) {
         this.password = hash;
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
+userSchema.pre("findOneAndUpdate", function (this, next) {
+  const update = this.getUpdate();
+  if (!update) return next();
+  const updateObj = update.$set || update;
+  if (updateObj.password) {
+    bcrypt.hash(updateObj.password, 10, (err, hash) => {
+      if (hash) {
+        if (update.$set) {
+          update.$set.password = hash;
+        } else {
+          update.password = hash;
+        }
       }
       next();
     });

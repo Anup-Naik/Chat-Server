@@ -23,6 +23,7 @@ export default class CRUD<T> {
   ): Promise<HydratedDocument<T>> {
     const updatedDoc = await this.model.findByIdAndUpdate(id, doc, {
       new: true,
+      runValidators:true,
     });
     if (!updatedDoc) {
       throw new Error("Document Not Found");
