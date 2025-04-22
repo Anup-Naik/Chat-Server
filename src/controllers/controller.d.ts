@@ -9,5 +9,5 @@ export interface User {
 export interface Group {
   name: string;
   avatar: string;
-  users: Array<User>;
+  users: Array<User> | string[];
 }

@@ -35,22 +35,17 @@ export const getUser = async (
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));
   }
-  const User = await Users.readOne(id);
-  if (!User) {
-    return next(new ExpressError(404, "User does not exist"));
-  }
-  res.status(200).json({ status: "success", data: { data: User } });
+  const user = await Users.readOne(id);
+  res.status(200).json({ status: "success", data: { data: user } });
 };
 
 export const getAllUsers = async (
   req: Request,
   res: Response,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
   const users = await Users.readAll();
-  if (!users) {
-    return next(new ExpressError(404, "No Users Found"));
-  }
   res.status(200).json({ status: "success", data: { data: users } });
 };
 
@@ -60,16 +55,21 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   const { username, password, email, avatar }: User = req.body;
-  let user:Partial<User> = { username, password, email, avatar };
+  let user: Partial<User> | [string, string][] = {
+    username,
+    password,
+    email,
+    avatar,
+  };
   user = Object.entries(user).filter(([key, value]) => {
     return value && ["username", "password", "email", "avatar"].includes(key);
   });
-
+  user = Object.fromEntries(user);
   const { id } = req.params;
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));
   }
-  const updatedUser = await Users.updateOne(id, Object.fromEntries(user));
+  const updatedUser = await Users.updateOne(id, user);
   res.status(200).json({ status: "success", data: { data: updatedUser } });
 };
 
