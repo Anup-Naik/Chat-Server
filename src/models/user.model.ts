@@ -1,4 +1,4 @@
-import { Query, Schema, model } from "mongoose";
+import { Schema, UpdateQuery, model } from "mongoose";
 import { IUser } from "./model.types.js";
 import CRUD from "./CRUD.js";
 import bcrypt from "bcryptjs";
@@ -48,8 +48,8 @@ userSchema.pre("save", function (next) {
   }
 });
 
-userSchema.pre("findOneAndUpdate", function (this: Query<any>, next) {
-  const update = this.getUpdate();
+userSchema.pre("findOneAndUpdate", function (next) {
+  const update = (this.getUpdate() as UpdateQuery<unknown>);
   if (!update) return next();
   const updateObj = update.$set || update;
   if (updateObj.password) {

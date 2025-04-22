@@ -8,8 +8,9 @@ export interface IUser {
 }
 export type UserDocument = HydratedDocument<IUser>;
 
-export interface IChat {
+export interface IGroup {
   name: string;
+  avatar:string;
   users: Types.ObjectId[] | IUser[];
 }
-export type ChatDocument = HydratedDocument<IChat>;
+export type ChatDocument = HydratedDocument<IGroup>;

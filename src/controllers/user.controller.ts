@@ -8,11 +8,16 @@ export const createUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { username, email, password, avatar } = req.body;
+  const { username, email, password,confirmPassword, avatar } = req.body;
 
-  if (!(username && email && password && avatar)) {
+  if (!(username && email && password &&confirmPassword)) {
     return next(new ExpressError(400, "Mandatory Fields Required"));
   }
+  if (password !==confirmPassword) {
+    return next(new ExpressError(400, "Passwords do not match"));
+  }
+
+
   const newUser = await Users.createOne({
     username,
     email,
@@ -28,6 +33,9 @@ export const getUser = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
+  if (!id) {
+    return next(new ExpressError(400, "Invalid Id"));
+  }
   const User = await Users.readOne(new Types.ObjectId(id));
   if (!User) {
     return next(new ExpressError(404, "User does not exist"));
@@ -52,14 +60,10 @@ export const updateUser = async (
   res: Response,
   next: NextFunction
 ) => {
-   
   const { username, password, email, avatar } = req.body;
   let user = { username, password, email, avatar };
   user = Object.entries(user).filter(([key, value]: [string, string]) => {
-    return (
-      value &&
-      ["username", "password", "email", "avatar"].includes(key)
-    );
+    return value && ["username", "password", "email", "avatar"].includes(key);
   });
   const { id } = req.params;
   const updatedUser = await Users.updateOne(
@@ -75,9 +79,7 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const deletedUser = await Users.updateOne(new Types.ObjectId(id), {
-    status: "deleted",
-  });
 
+  await Users.deleteOne(new Types.ObjectId(id));
   res.status(204).json({ status: "success", data: {} });
 };

@@ -1,10 +1,13 @@
 import { Schema, model, Types } from "mongoose";
-import { IChat } from "./model.types.js";
+import { IGroup } from "./model.types.js";
 import CRUD from "./CRUD.js";
 
-const chatSchema = new Schema<IChat>(
+const groupSchema = new Schema<IGroup>(
   {
     name: {
+      type: String,
+    },
+    avatar: {
       type: String,
     },
     users: [
@@ -17,5 +20,5 @@ const chatSchema = new Schema<IChat>(
   { timestamps: true }
 );
 
-const Chat = model<IChat>("Chat", chatSchema);
-export default new CRUD<IChat>(Chat);
+const Group = model<IGroup>("Group", groupSchema);
+export default new CRUD<IGroup>(Group);
