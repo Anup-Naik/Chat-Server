@@ -21,9 +21,6 @@ io.on("connection", (socket) => {
     console.log("connected", socket.id, data);
   });
 });
-// setInterval(() => {
-//   io.emit("Blah", "POOf");
-// }, 3000);
 
 const PORT = Number(process.env.PORT!) || 3000;
 server.listen(PORT, "127.0.0.1", () => {
@@ -31,9 +28,15 @@ server.listen(PORT, "127.0.0.1", () => {
 });
 
 process.on("uncaughtException", (err) => {
-  console.error(err);
+  console.error("UNCAUGHT EXCEPTION:", err);
+  server.close(() => {
+    process.exit(1);
+  });
 });
 
 process.on("unhandledRejection", (err) => {
-  console.error(err);
+  console.error("UNHANDLED REJECTION:", err);
+  server.close(() => {
+    process.exit(1);
+  });
 });

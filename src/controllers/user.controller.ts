@@ -19,7 +19,7 @@ export const createUser = async (
     password,
     avatar,
   });
-  res.status(200).json({ status: "success", data: { data: newUser } });
+  res.status(201).json({ status: "success", data: { data: newUser } });
 };
 
 export const getUser = async (
@@ -66,7 +66,7 @@ export const updateUser = async (
     new Types.ObjectId(id),
     Object.fromEntries(user)
   );
-  res.status(203).json({ status: "success", data: { data: updatedUser } });
+  res.status(200).json({ status: "success", data: { data: updatedUser } });
 };
 
 export const deleteUser = async (
