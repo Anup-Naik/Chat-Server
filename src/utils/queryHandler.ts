@@ -16,8 +16,7 @@ export const sortHandler = <T>(
     return { [allowedKeys[0] as string]: 1 } as {
       [key in keyof Partial<T>]: 1 | -1;
     };
-  const sort = query.sort;
-  const filteredSort = Object.entries(sort)
+  const filteredSort = Object.entries(query.sort)
     .filter(([key, val]) => {
       return allowedKeys.includes(key) && [1, -1].includes(Number(val));
     })
@@ -26,10 +25,10 @@ export const sortHandler = <T>(
   return Object.fromEntries(filteredSort);
 };
 
-export const bodyHandler = <T>(body:Partial<T>, allowedKeys:string[]) => {
+export const bodyHandler = <T>(body: Partial<T>, allowedKeys: string[]) => {
   return Object.fromEntries(
     Object.entries(body).filter(([key, value]) => {
-      return value && allowedKeys.includes(key);
+      return allowedKeys.includes(key) && value;
     })
   );
 };

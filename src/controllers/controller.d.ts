@@ -11,3 +11,10 @@ export interface Group {
   avatar: string;
   users: Array<User> | string[];
 }
+
+export type ValidatorHook<T> = (data: T) => {
+  isValid: boolean;
+  error?: string;
+};
+
+export type PreProcessorHook<T> = (data: T) => T;
