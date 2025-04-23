@@ -8,13 +8,13 @@ import {
 import CRUD from "../models/CRUD.js";
 import { PreProcessorHook, ValidatorHook } from "./controller.js";
 
-export default class ControllerApiFactory<T,U> {
+export default class ControllerApiFactory<T, U> {
   constructor(private Model: CRUD<U>) {}
 
   createDoc(
     requiredFields: string[],
     validator: ValidatorHook<T>,
-    preProcessor: PreProcessorHook<T,U>
+    preProcessor: PreProcessorHook<T, U>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const missingFields = requiredFields.filter((field) => !req.body[field]);
@@ -64,15 +64,27 @@ export default class ControllerApiFactory<T,U> {
     };
   }
 
-  updateDoc(allowedFields: string[]) {
+  updateDoc(
+    allowedFields: string[],
+    validator: ValidatorHook<T>,
+    preProcessor: PreProcessorHook<T, U>
+  ) {
     return async (req: Request, res: Response, next: NextFunction) => {
+      const validity = validator(req.body);
+      if (!validity.isValid) {
+        return next(
+          new ExpressError(400, validity.error || "Validation Failed")
+        );
+      }
+
       const doc = bodyHandler<T>(req.body, allowedFields);
+      const processedData: Partial<U> = preProcessor(doc as T);
 
       const { id } = req.params;
       if (!id) {
         return next(new ExpressError(400, "Invalid Id"));
       }
-      const updatedDoc = await this.Model.updateOne(id, doc as Partial<U>);
+      const updatedDoc = await this.Model.updateOne(id, processedData);
       res.status(200).json({ status: "success", data: { data: updatedDoc } });
     };
   }
