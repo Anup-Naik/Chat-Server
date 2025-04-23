@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Users from "../models/user.model.js";
 import { ExpressError } from "../utils/customError.js";
 import { User } from "./controller.js";
+import { paginateHandler, sortHandler } from "../utils/queryHandler.js";
 
 export const createUser = async (
   req: Request,
@@ -45,7 +46,9 @@ export const getAllUsers = async (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  const users = await Users.readAll();
+  const page = paginateHandler(req.query);
+  const sort = sortHandler<User>(req.query,['username','email']);
+  const users = await Users.readAll(page, sort);
   res.status(200).json({ status: "success", data: { data: users } });
 };
 

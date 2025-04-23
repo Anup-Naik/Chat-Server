@@ -32,7 +32,7 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true,validateBeforeSave:true }
 );
 
 userSchema.pre("save", function (next) {

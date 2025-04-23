@@ -1,0 +1,27 @@
+import { Query } from "express-serve-static-core";
+
+export const paginateHandler = (query: Query) => {
+  const page = Number(query.page ?? 1);
+  const limit = Number(query.limit ?? 10);
+  const skip = (page - 1) * limit;
+  const pagination = { skip, page, limit };
+  return pagination;
+};
+
+export const sortHandler = <T>(
+  query: Query,
+  allowedKeys: string[]
+): { [key in keyof Partial<T>]: 1 | -1 } => {
+  if (!query.sort)
+    return { [allowedKeys[0] as string]: 1 } as {
+      [key in keyof Partial<T>]: 1 | -1;
+    };
+  const sort = query.sort;
+  const filteredSort = Object.entries(sort)
+    .filter(([key, val]) => {
+      return allowedKeys.includes(key) && [1, -1].includes(Number(val));
+    })
+    .map(([k, v]) => [k, Number(v)]);
+
+  return Object.fromEntries(filteredSort);
+};

@@ -7,7 +7,7 @@ export default class CRUD<T> {
 
   async createOne(doc: T): Promise<HydratedDocument<T>> {
     const newdoc: HydratedDocument<T> = new this.model(doc);
-    await newdoc.save();
+    await newdoc.save({});
     return newdoc;
   }
 
@@ -21,14 +21,17 @@ export default class CRUD<T> {
 
   //IIIII filtering IIIIII
   async readAll(
-    page: Pagination = { page: 0, limit:10, skip: 0 },
-    sort: Sort<T>
+    page: Pagination = { page: 0, limit: 10, skip: 0 },
+    sort: Sort<T>,
+    pathPopulate: string = ""
   ): Promise<HydratedDocument<T>[]> {
-    const docs = await this.model
-      .find({})
-      .skip(page.skip)
-      .limit(page.limit)
-      .sort(sort);
+    const query = this.model.find({});
+    query.skip(page.skip);
+    query.limit(page.limit);
+    query.sort(sort);
+    if (pathPopulate) query.populate({ path: pathPopulate });
+    const docs = await query.exec();
+
     if (!docs.length) {
       throw new ExpressError(
         404,

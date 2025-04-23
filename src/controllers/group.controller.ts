@@ -3,6 +3,7 @@ import Groups from "../models/group.model.js";
 import { Group } from "./controller.js";
 import { ExpressError } from "../utils/customError.js";
 import { Types } from "mongoose";
+import { paginateHandler, sortHandler } from "../utils/queryHandler.js";
 
 export const createGroup = async (
   req: Request,
@@ -11,7 +12,7 @@ export const createGroup = async (
 ) => {
   const { name, avatar, users }: Group = req.body;
 
-  if (!(name && users.length)) {
+  if (!(name && users?.length && users instanceof Array)) {
     return next(new ExpressError(400, "Name and Initial User Required"));
   }
   const groupUsers = users.map((val) => new Types.ObjectId(val as string));
@@ -36,18 +37,18 @@ export const getGroup = async (
   res.status(200).json({ status: "success", data: { data: group } });
 };
 
-//IMPLEMENT GET-ALL USER GROUPS IN CRUD GENERIC
 export const getAllGroups = async (
   req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ) => {
-  const groups = await Groups.readAll();
+  const page = paginateHandler(req.query);
+  const sort = sortHandler<Group>(req.query, ["name", "users"]);
+  const groups = await Groups.readAll(page, sort, "users");
   res.status(200).json({ status: "success", data: { data: groups } });
 };
 
-//IMPLEMENT ADD/REMOVE USER METHOD/S in GENERIC CRUD
 export const updateGroup = async (
   req: Request,
   res: Response,
@@ -61,7 +62,7 @@ export const updateGroup = async (
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));
   }
-  const updatedGroup = await Groups.updateOne(id, {name,avatar});
+  const updatedGroup = await Groups.updateOne(id, { name, avatar });
   res.status(200).json({ status: "success", data: { data: updatedGroup } });
 };
 

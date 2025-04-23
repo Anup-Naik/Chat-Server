@@ -22,5 +22,5 @@ export interface Pagination {
 }
 
 export type Sort<T> = {
-  [key in keyof T]: 1 | -1;
+  [key in keyof Partial<T>]: 1 | -1;
 };

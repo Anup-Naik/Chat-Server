@@ -6,6 +6,10 @@ const groupSchema = new Schema<IGroup>(
   {
     name: {
       type: String,
+      unique: true,
+      required: true,
+      minlength: 5,
+      maxlength: 10,
     },
     avatar: {
       type: String,
@@ -17,7 +21,7 @@ const groupSchema = new Schema<IGroup>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true,validateBeforeSave:true }
 );
 
 const Group = model<IGroup>("Group", groupSchema);

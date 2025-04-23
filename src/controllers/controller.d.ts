@@ -11,6 +11,3 @@ export interface Group {
   avatar: string;
   users: Array<User> | string[];
 }
-
-
-
