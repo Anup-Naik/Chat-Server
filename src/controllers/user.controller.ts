@@ -1,57 +1,36 @@
 import { NextFunction, Request, Response } from "express";
+import type { User, ValidatorHook } from "./controller.js";
 import Users from "../models/user.model.js";
 import { ExpressError } from "../utils/customError.js";
-import { User } from "./controller.js";
 import { paginateHandler, sortHandler } from "../utils/queryHandler.js";
+import ControllerApiFactory from "./ControllerApiFactory.js";
+import { IUser } from "../models/model.js";
 
-export const createUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { username, email, password, confirmPassword, avatar }: User = req.body;
+const userController = new ControllerApiFactory<User, IUser>(Users);
 
-  if (!(username && email && password && confirmPassword)) {
-    return next(new ExpressError(400, "Mandatory Fields Required"));
+const userValidator = (data: User): ReturnType<ValidatorHook<User>> => {
+  if (data.password !== data.confirmPassword) {
+    return { isValid: false, error: "Passwords do not match" };
   }
-  if (password !== confirmPassword) {
-    return next(new ExpressError(400, "Passwords do not match"));
-  }
-
-  const newUser = await Users.createOne({
-    username: username.trim(),
-    email: email.trim(),
-    password: password.trim(),
-    avatar,
-  });
-  res.status(201).json({ status: "success", data: { data: newUser } });
+  return { isValid: true };
 };
 
-export const getUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id } = req.params;
-  if (!id) {
-    return next(new ExpressError(400, "Invalid Id"));
-  }
-  const user = await Users.readOne(id);
-  res.status(200).json({ status: "success", data: { data: user } });
+const userPreProcessor = (data: User): IUser => {
+  const username = data.username.trim();
+  const email = data.email.trim();
+  const password = data.password.trim();
+  return { ...data, username, email, password };
 };
+export const createUser = userController.createDoc(
+  ["username", "email", "password", "confirmPassword"],
+  userValidator,
+  userPreProcessor
+);
 
-export const getAllUsers = async (
-  req: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
-) => {
-  const page = paginateHandler(req.query);
-  const sort = sortHandler<User>(req.query,['username','email']);
-  const users = await Users.readAll(page, sort);
-  res.status(200).json({ status: "success", data: { data: users } });
-};
+export const getUser = userController.getDoc();
 
+export const getAllUsers = userController.getAllDocs(["username", "email"])
+ 
 export const updateUser = async (
   req: Request,
   res: Response,
@@ -68,7 +47,7 @@ export const updateUser = async (
     return value && ["username", "password", "email", "avatar"].includes(key);
   });
   user = Object.fromEntries(user);
-  
+
   const { id } = req.params;
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));
