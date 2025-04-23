@@ -1,8 +1,5 @@
-import { NextFunction, Request, Response } from "express";
 import type { User, ValidatorHook } from "./controller.js";
 import Users from "../models/user.model.js";
-import { ExpressError } from "../utils/customError.js";
-import { paginateHandler, sortHandler } from "../utils/queryHandler.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import { IUser } from "../models/model.js";
 
@@ -21,6 +18,7 @@ const userPreProcessor = (data: User): IUser => {
   const password = data.password.trim();
   return { ...data, username, email, password };
 };
+
 export const createUser = userController.createDoc(
   ["username", "email", "password", "confirmPassword"],
   userValidator,
@@ -29,42 +27,12 @@ export const createUser = userController.createDoc(
 
 export const getUser = userController.getDoc();
 
-export const getAllUsers = userController.getAllDocs(["username", "email"])
- 
-export const updateUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { username, password, email, avatar }: User = req.body;
-  let user: Partial<User> | [string, string][] = {
-    username,
-    password,
-    email,
-    avatar,
-  };
-  user = Object.entries(user).filter(([key, value]) => {
-    return value && ["username", "password", "email", "avatar"].includes(key);
-  });
-  user = Object.fromEntries(user);
+export const getAllUsers = userController.getAllDocs(["username", "email"]);
 
-  const { id } = req.params;
-  if (!id) {
-    return next(new ExpressError(400, "Invalid Id"));
-  }
-  const updatedUser = await Users.updateOne(id, user);
-  res.status(200).json({ status: "success", data: { data: updatedUser } });
-};
+export const updateUser = userController.updateDoc(
+  ["username", "password", "email", "avatar"],
+  userValidator,
+  userPreProcessor
+);
 
-export const deleteUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id } = req.params;
-  if (!id) {
-    return next(new ExpressError(400, "Invalid Id"));
-  }
-  await Users.deleteOne(id);
-  res.status(204).json({ status: "success", data: {} });
-};
+export const deleteUser = userController.deleteDoc();
