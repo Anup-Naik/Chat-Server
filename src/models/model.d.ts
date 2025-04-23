@@ -14,3 +14,13 @@ export interface IGroup {
   users: Types.ObjectId[] | IUser[];
 }
 export type GroupDocument = HydratedDocument<IGroup>;
+
+export interface Pagination {
+  limit: number;
+  page: number;
+  skip: number;
+}
+
+export type Sort<T> = {
+  [key in keyof T]: 1 | -1;
+};

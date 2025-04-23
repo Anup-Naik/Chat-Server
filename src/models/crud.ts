@@ -1,5 +1,6 @@
-import { HydratedDocument, Model, Types } from "mongoose";
+import { HydratedDocument, Model, Types, UpdateQuery } from "mongoose";
 import { ExpressError } from "../utils/customError.js";
+import { Pagination, Sort } from "./model.js";
 
 export default class CRUD<T> {
   constructor(private model: Model<T>) {}
@@ -17,10 +18,17 @@ export default class CRUD<T> {
     }
     return doc;
   }
-   
-  //IIIIIpagination, filtering, or sortingIIIIII
-  async readAll(filter,page,sort): Promise<HydratedDocument<T>[]> {
-    const docs = await this.model.find({});
+
+  //IIIII filtering IIIIII
+  async readAll(
+    page: Pagination = { page: 0, limit:10, skip: 0 },
+    sort: Sort<T>
+  ): Promise<HydratedDocument<T>[]> {
+    const docs = await this.model
+      .find({})
+      .skip(page.skip)
+      .limit(page.limit)
+      .sort(sort);
     if (!docs.length) {
       throw new ExpressError(
         404,
@@ -55,23 +63,55 @@ export default class CRUD<T> {
 
   async addRefDoc(
     id: string,
-    prop: string,
+    prop: keyof T,
     refDocs: string[]
   ): Promise<HydratedDocument<T>> {
     const newRefDocs = refDocs
       .map((val) => new Types.ObjectId(val))
       .filter((ref) => Types.ObjectId.isValid(ref));
+
+    const update = {
+      $addToSet: { [prop]: { $each: newRefDocs } },
+    };
+
     const doc = await this.model.findByIdAndUpdate(
       id,
-      {
-        $push: { [prop]: { $each: newRefDocs } },
-      },
+      update as UpdateQuery<T>,
       { runValidators: true, new: true }
     );
+
     if (!doc) {
       throw new ExpressError(
         404,
         "UpdateError:new Entities Not Added to " + this.model.name
+      );
+    }
+    return doc;
+  }
+
+  async removeRefDoc(
+    id: string,
+    prop: keyof T,
+    refDocs: string[]
+  ): Promise<HydratedDocument<T>> {
+    const newRefDocs = refDocs
+      .map((val) => new Types.ObjectId(val))
+      .filter((ref) => Types.ObjectId.isValid(ref));
+
+    const update = {
+      $pull: { [prop]: { $each: newRefDocs } },
+    };
+
+    const doc = await this.model.findByIdAndUpdate(
+      id,
+      update as UpdateQuery<T>,
+      { runValidators: true, new: true }
+    );
+
+    if (!doc) {
+      throw new ExpressError(
+        404,
+        "UpdateError:new Entities Not Removed from " + this.model.name
       );
     }
     return doc;
