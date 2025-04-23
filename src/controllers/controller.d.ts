@@ -17,4 +17,4 @@ export type ValidatorHook<T> = (data: T) => {
   error?: string;
 };
 
-export type PreProcessorHook<T> = (data: T) => T;
+export type PreProcessorHook<T,U> = (data: T) => U;

@@ -8,13 +8,13 @@ import {
 import CRUD from "../models/CRUD.js";
 import { PreProcessorHook, ValidatorHook } from "./controller.js";
 
-export default class ControlApiFactory<U> {
+export default class ControllerApiFactory<T,U> {
   constructor(private Model: CRUD<U>) {}
 
   createDoc(
     requiredFields: string[],
-    validator: ValidatorHook,
-    preProcessor: PreProcessorHook
+    validator: ValidatorHook<T>,
+    preProcessor: PreProcessorHook<T,U>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const missingFields = requiredFields.filter((field) => !req.body[field]);
@@ -32,7 +32,7 @@ export default class ControlApiFactory<U> {
           new ExpressError(400, validity.error || "Validation Failed")
         );
       }
-      const processedData = preProcessor<U>(req.body);
+      const processedData = preProcessor(req.body);
 
       const newDoc = await this.Model.createOne(processedData);
       res.status(201).json({ status: "success", data: { data: newDoc } });
@@ -66,7 +66,7 @@ export default class ControlApiFactory<U> {
 
   updateDoc(allowedFields: string[]) {
     return async (req: Request, res: Response, next: NextFunction) => {
-      const doc = bodyHandler<U>(req.body, allowedFields);
+      const doc = bodyHandler<T>(req.body, allowedFields);
 
       const { id } = req.params;
       if (!id) {

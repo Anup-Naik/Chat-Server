@@ -1,53 +1,42 @@
 import { NextFunction, Request, Response } from "express";
 import Groups from "../models/group.model.js";
-import { Group } from "./controller.js";
+import { Group, ValidatorHook } from "./controller.js";
 import { ExpressError } from "../utils/customError.js";
 import { Types } from "mongoose";
 import { paginateHandler, sortHandler } from "../utils/queryHandler.js";
+import ControllerApiFactory from "./ControllerApiFactory.js";
+import { IGroup } from "../models/model.js";
 
-export const createGroup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { name, avatar, users }: Group = req.body;
+const groupController = new ControllerApiFactory<Group, IGroup>(Groups);
 
-  if (!(name && users?.length && users instanceof Array)) {
-    return next(new ExpressError(400, "Name and Initial User Required"));
+const groupValidator = (data: Group): ReturnType<ValidatorHook<Group>> => {
+  if(5 <= data.name.length && data.name.length <=10 ){
+    return { isValid: false, error: "Length of GroupName Must be 5-10 Characters" };
   }
-  const groupUsers = users.map((val) => new Types.ObjectId(val as string));
-  const newGroup = await Groups.createOne({
-    name: name.trim(),
-    users: groupUsers,
-    avatar,
-  });
-  res.status(201).json({ status: "success", data: { data: newGroup } });
-};
-
-export const getGroup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { id } = req.params;
-  if (!id) {
-    return next(new ExpressError(400, "Invalid GroupId"));
+  if (!data.users.length) {
+    return { isValid: false, error: "Group Must have a Creator" };
   }
-  const group = await Groups.readOne(id);
-  res.status(200).json({ status: "success", data: { data: group } });
+  return { isValid: true };
+};
+const groupPreProcessor = (data: Group): IGroup => {
+  const users = data.users.map((val) => new Types.ObjectId(val as string));
+  const name = data.name.trim();
+  return { ...data, name, users };
 };
 
-export const getAllGroups = async (
-  req: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
-) => {
-  const page = paginateHandler(req.query);
-  const sort = sortHandler<Group>(req.query, ["name", "users"]);
-  const groups = await Groups.readAll(page, sort, "users");
-  res.status(200).json({ status: "success", data: { data: groups } });
-};
+export const createGroup = groupController.createDoc(
+  ["name", "users"],
+  groupValidator,
+  groupPreProcessor
+);
+
+
+
+export const getGroup = groupController.getDoc();
+
+
+export const getAllGroups = groupController.getAllDocs(["name", "users"],"users")
+
 
 export const updateGroup = async (
   req: Request,
