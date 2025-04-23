@@ -19,7 +19,7 @@ export default class CRUD<T> {
   }
    
   //IIIIIpagination, filtering, or sortingIIIIII
-  async readAll(): Promise<HydratedDocument<T>[]> {
+  async readAll(filter,page,sort): Promise<HydratedDocument<T>[]> {
     const docs = await this.model.find({});
     if (!docs.length) {
       throw new ExpressError(
