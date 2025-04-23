@@ -68,6 +68,7 @@ export const updateUser = async (
     return value && ["username", "password", "email", "avatar"].includes(key);
   });
   user = Object.fromEntries(user);
+  
   const { id } = req.params;
   if (!id) {
     return next(new ExpressError(400, "Invalid Id"));

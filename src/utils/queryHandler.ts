@@ -25,3 +25,11 @@ export const sortHandler = <T>(
 
   return Object.fromEntries(filteredSort);
 };
+
+export const bodyHandler = <T>(body:Partial<T>, allowedKeys:string[]) => {
+  return Object.fromEntries(
+    Object.entries(body).filter(([key, value]) => {
+      return value && allowedKeys.includes(key);
+    })
+  );
+};
