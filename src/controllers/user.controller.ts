@@ -1,7 +1,7 @@
 import type { User, ValidatorHook } from "./controller.js";
+import type { IUser } from "../models/model.js";
 import Users from "../models/user.model.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
-import { IUser } from "../models/model.js";
 import { userCascader } from "../models/group.model.js";
 
 const userController = new ControllerApiFactory<User, IUser>(Users);
@@ -23,7 +23,8 @@ const userPreProcessor = (data: User): IUser => {
 export const createUser = userController.createDoc(
   ["username", "email", "password", "confirmPassword"],
   userValidator,
-  userPreProcessor
+  userPreProcessor,
+  true
 );
 
 export const getUser = userController.getDoc();

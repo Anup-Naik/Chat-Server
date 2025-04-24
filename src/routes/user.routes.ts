@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  createUser,
   deleteUser,
   getAllUsers,
   getUser,
@@ -10,7 +9,7 @@ import catchAsync from "../utils/catchAsync.js";
 
 const router = Router();
 
-router.route("/").post(catchAsync(createUser)).get(catchAsync(getAllUsers));
+router.route("/").get(catchAsync(getAllUsers));
 router
   .route("/:id")
   .get(catchAsync(getUser))

@@ -1,8 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
+import helmet from "helmet";
+import { customError, ExpressError } from "./utils/customError.js";
+import authRouter from './routes/auth.routes.js'
 import userRouter from "./routes/user.routes.js";
 import groupRouter from "./routes/group.routes.js";
-import { customError, ExpressError } from "./utils/customError.js";
-import helmet from "helmet";
 // import ExpressMongoSanitize from "express-mongo-sanitize";
 
 const app = express();
@@ -10,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 // app.use(ExpressMongoSanitize({ dryRun: true }));
-
+app.use("/api/v1/",authRouter);
 app.use("/api/v1/users/", userRouter);
 app.use("/api/v1/groups/", groupRouter);
 
