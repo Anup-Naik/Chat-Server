@@ -68,5 +68,5 @@ userSchema.pre("findOneAndUpdate", function (next) {
   }
 });
 
-const User = model<IUser>("User", userSchema);
+export const User = model<IUser>("User", userSchema);
 export default new CRUD<IUser>(User);

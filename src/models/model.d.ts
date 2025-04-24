@@ -24,3 +24,5 @@ export interface Pagination {
 export type Sort<T> = {
   [key in keyof Partial<T>]: 1 | -1;
 };
+
+export type CascadeHook = (id:string)=> Promise<void>;

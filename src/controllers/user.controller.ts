@@ -2,6 +2,7 @@ import type { User, ValidatorHook } from "./controller.js";
 import Users from "../models/user.model.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import { IUser } from "../models/model.js";
+import { userCascader } from "../models/group.model.js";
 
 const userController = new ControllerApiFactory<User, IUser>(Users);
 
@@ -35,4 +36,4 @@ export const updateUser = userController.updateDoc(
   userPreProcessor
 );
 
-export const deleteUser = userController.deleteDoc();
+export const deleteUser = userController.deleteDoc(userCascader);

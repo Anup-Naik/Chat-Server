@@ -11,15 +11,20 @@ export default class CRUD<T> {
     return newdoc;
   }
 
-  async readOne(id: string): Promise<HydratedDocument<T>> {
-    const doc = await this.model.findById(id);
+  async readOne(
+    id: string,
+    pathPopulate: string = ""
+  ): Promise<HydratedDocument<T>> {
+    const query = this.model.findById(id);
+    if (pathPopulate) query.populate({ path: pathPopulate });
+    const doc = await query.exec();
     if (!doc) {
       throw new ExpressError(404, "ReadError:Entity Not Found - " + id);
     }
     return doc;
   }
 
-  //IIIII filtering IIIIII
+  //IIIII FILTERING,POPULATE-PROJECTION IIIIII
   async readAll(
     page: Pagination = { page: 0, limit: 10, skip: 0 },
     sort: Sort<T>,
@@ -35,7 +40,7 @@ export default class CRUD<T> {
     if (!docs.length) {
       throw new ExpressError(
         404,
-        "ReadAllError:Entities Do Not Exist - " + this.model.name
+        "ReadAllError:Entities Do Not Exist " 
       );
     }
     return docs;
@@ -86,7 +91,7 @@ export default class CRUD<T> {
     if (!doc) {
       throw new ExpressError(
         404,
-        "UpdateError:new Entities Not Added to " + this.model.name
+        "UpdateError:new Entities Not Added to " + (prop as string)
       );
     }
     return doc;

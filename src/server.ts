@@ -17,8 +17,8 @@ const server = createServer(app);
 const io = new Server(server);
 
 io.on("connection", (socket) => {
-  socket.on("message", (data) => {
-    console.log("connected", socket.id, data);
+  socket.on("message", (data) => {;
+    io.emit("play", data);
   });
 });
 
@@ -30,6 +30,7 @@ server.listen(PORT, "127.0.0.1", () => {
 process.on("uncaughtException", (err) => {
   console.error("UNCAUGHT EXCEPTION:", err);
   server.close(() => {
+    io.close();
     process.exit(1);
   });
 });
@@ -37,6 +38,7 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (err) => {
   console.error("UNHANDLED REJECTION:", err);
   server.close(() => {
+    io.close();
     process.exit(1);
   });
 });

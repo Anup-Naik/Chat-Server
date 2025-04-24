@@ -10,7 +10,7 @@ const groupValidator = (data: Group): ReturnType<ValidatorHook<Group>> => {
   if (!data.name) {
     return { isValid: false, error: "Enter GroupName" };
   }
-  if (5 <= data.name.length && data.name.length <= 10) {
+  if (!(5 <= data.name.length && data.name.length <= 10)) {
     return {
       isValid: false,
       error: "GroupName Must be 5-10 Characters Long",
@@ -34,7 +34,7 @@ export const createGroup = groupController.createDoc(
   groupPreProcessor
 );
 
-export const getGroup = groupController.getDoc();
+export const getGroup = groupController.getDoc('users');
 
 export const getAllGroups = groupController.getAllDocs(
   ["name", "users"],

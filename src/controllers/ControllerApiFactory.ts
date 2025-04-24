@@ -7,6 +7,7 @@ import {
 } from "../utils/queryHandler.js";
 import CRUD from "../models/CRUD.js";
 import { PreProcessorHook, ValidatorHook } from "./controller.js";
+import { CascadeHook } from "../models/model.js";
 
 export default class ControllerApiFactory<T, U> {
   constructor(private Model: CRUD<U>) {}
@@ -39,13 +40,13 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  getDoc() {
+  getDoc(populatePath?: string) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       if (!id) {
         return next(new ExpressError(400, "Invalid Id"));
       }
-      const doc = await this.Model.readOne(id);
+      const doc = await this.Model.readOne(id ,populatePath);
       res.status(200).json({ status: "success", data: { data: doc } });
     };
   }
@@ -89,12 +90,13 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  deleteDoc() {
+  deleteDoc(cascader?:CascadeHook) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       if (!id) {
         return next(new ExpressError(400, "Invalid Id"));
       }
+      if(cascader) await cascader(id);
       await this.Model.deleteOne(id);
       res.status(204).json({ status: "success", data: {} });
     };
