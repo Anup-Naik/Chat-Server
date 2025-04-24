@@ -1,19 +1,22 @@
 import express, { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import { customError, ExpressError } from "./utils/customError.js";
-import authRouter from './routes/auth.routes.js'
+import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import groupRouter from "./routes/group.routes.js";
+import { authHttpMiddleware } from "./controllers/auth.controller.js";
 // import ExpressMongoSanitize from "express-mongo-sanitize";
 
 const app = express();
 
-app.use(express.json());
 app.use(helmet());
+app.use(express.json({limit:'10kb'}));
+app.use(express.urlencoded({extended:true,limit:'10kb'}));
 // app.use(ExpressMongoSanitize({ dryRun: true }));
-app.use("/api/v1/",authRouter);
-app.use("/api/v1/users/", userRouter);
-app.use("/api/v1/groups/", groupRouter);
+
+app.use("/api/v1/", authRouter);
+app.use("/api/v1/users/",authHttpMiddleware, userRouter);
+app.use("/api/v1/groups/",authHttpMiddleware, groupRouter);
 
 app.all("*catchAll", (req, res, next) => {
   next(new ExpressError(404, "Not Found"));
