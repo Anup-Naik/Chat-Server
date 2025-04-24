@@ -7,17 +7,17 @@ import { userCascader } from "../models/group.model.js";
 const userController = new ControllerApiFactory<User, IUser>(Users);
 
 const userValidator = (data: User): ReturnType<ValidatorHook<User>> => {
-  if (data.password !== data.confirmPassword) {
+  if (data?.password !== data?.confirmPassword) {
     return { isValid: false, error: "Passwords do not match" };
   }
   return { isValid: true };
 };
 
 const userPreProcessor = (data: User): IUser => {
-  const username = data.username.trim();
-  const email = data.email.trim();
-  const password = data.password.trim();
-  return { ...data, username, email, password };
+  const username = data?.username?.trim();
+  const email = data?.email?.trim();
+  const password = data?.password?.trim();
+  return { ...data, username, email, password }; 
 };
 
 export const createUser = userController.createDoc(

@@ -32,7 +32,7 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
   },
-  { timestamps: true,validateBeforeSave:true }
+  { timestamps: true, validateBeforeSave: true }
 );
 
 userSchema.pre("save", function (next) {
@@ -49,7 +49,7 @@ userSchema.pre("save", function (next) {
 });
 
 userSchema.pre("findOneAndUpdate", function (next) {
-  const update = (this.getUpdate() as UpdateQuery<unknown>);
+  const update = this.getUpdate() as UpdateQuery<unknown>;
   if (!update) return next();
   const updateObj = update.$set || update;
   if (updateObj.password) {

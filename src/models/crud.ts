@@ -7,7 +7,7 @@ export default class CRUD<T> {
 
   async createOne(doc: T): Promise<HydratedDocument<T>> {
     const newdoc: HydratedDocument<T> = new this.model(doc);
-    await newdoc.save({});
+    await newdoc.save();
     return newdoc;
   }
 
@@ -38,10 +38,7 @@ export default class CRUD<T> {
     const docs = await query.exec();
 
     if (!docs.length) {
-      throw new ExpressError(
-        404,
-        "ReadAllError:Entities Do Not Exist " 
-      );
+      throw new ExpressError(404, "ReadAllError:Entities Do Not Exist ");
     }
     return docs;
   }
