@@ -34,14 +34,23 @@ export const authHttpMiddleware = (
   );
 };
 
-export const authSocketMiddleware = (socket: Socket, next: (err?: ExtendedError | undefined) => void) => {
-  const token = socket.handshake.auth?.jwt;
+export const authSocketMiddleware = (
+  socket: Socket,
+  next: (err?: ExtendedError | undefined) => void
+) => {
+  let token: string = (socket.request.headers.jwt as string)
+    .replace("Bearer", "")
+    .trim();
+
+  token = token || socket.handshake.auth?.jwt;
+
   if (!token) {
     return next(new ExpressError(401, "Not LoggedIn") as ExtendedError);
   }
 
   jwt.verify(token, process.env.JWT_SECRET!, (err: unknown, data: unknown) => {
-    if (err) return next(new ExpressError(401, "Not Authenticated") as ExtendedError);
+    if (err)
+      return next(new ExpressError(401, "Not Authenticated") as ExtendedError);
     socket.data.user = data;
     next();
   });

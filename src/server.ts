@@ -20,10 +20,11 @@ connect(process.env.MONGO_URL as string)
 .catch(console.error);
 
 import app from "./app.js";
+import { setupSocketServer } from "./controllers/chat.controller.js";
 const server = createServer(app);
 
 const io = new Server(server);
-
+setupSocketServer(io);
 const PORT = Number(process.env.PORT!) || 3000;
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`running server on ${PORT}`);
