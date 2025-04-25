@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import jwt = require("jsonwebtoken");
-import { createUser } from "./user.controller.js";
+import { checkPassword, createUser } from "./user.controller.js";
 import { ExpressError } from "../utils/customError.js";
 import { ExtendedError, Socket } from "socket.io";
 
@@ -48,10 +48,10 @@ export const authSocketMiddleware = (
     return next(new ExpressError(401, "Not LoggedIn") as ExtendedError);
   }
 
-  jwt.verify(token, process.env.JWT_SECRET!, (err: unknown, data: unknown) => {
-    if (err)
+  jwt.verify(token, process.env.JWT_SECRET!, (err, data) => {
+    if (err || !data || typeof data !== "object" || !data.userId)
       return next(new ExpressError(401, "Not Authenticated") as ExtendedError);
-    socket.data.user = data;
+    socket.data.userId = data.userId;
     next();
   });
 };
@@ -69,4 +69,18 @@ export const signup = async (
   const { password, ...userData } = user.toObject();
   const token = await createJWT({ userId: userData._id });
   res.status(201).json({ status: "success", data: { token, data: userData } });
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new ExpressError(400, "Email and Password Required"));
+  }
+  const user = await checkPassword(email, password);
+  const token = await createJWT(user._id);
+  res.status(200).json({ status: "success", data: { token, data: user } });
 };

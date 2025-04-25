@@ -2,6 +2,7 @@ import { Schema, UpdateQuery, model } from "mongoose";
 import { IUser } from "./model.js";
 import CRUD from "./CRUD.js";
 import bcrypt from "bcryptjs";
+import { ExpressError } from "../utils/customError.js";
 
 const userSchema = new Schema<IUser>(
   {
@@ -68,5 +69,22 @@ userSchema.pre("findOneAndUpdate", function (next) {
   }
 });
 
-export const User = model<IUser>("User", userSchema);
+const User = model<IUser>("User", userSchema);
+
+export const confirmPassword = async (email: string, password: string) => {
+  const user = await User.findOne(
+    { email },
+    { password: 1, username: 1, avatar: 1, email: 1 }
+  );
+  if (!user) {
+    throw new ExpressError(404, "User Not Found");
+  }
+  const isValid = await bcrypt.compare(password, user.password);
+  if (isValid) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userData } = user;
+    return userData;
+  }
+  throw new ExpressError(401, "Invalid Email or Password");
+};
 export default new CRUD<IUser>(User);

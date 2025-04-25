@@ -77,14 +77,15 @@ export default class ControllerApiFactory<T, U> {
     preProcessor: PreProcessorHook<T, U>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
-      const validity = validator(req.body);
+      const doc = bodyHandler<T>(req.body, allowedFields);
+
+      const validity = validator(doc as T);
       if (!validity.isValid) {
         return next(
           new ExpressError(400, validity.error || "Validation Failed")
         );
       }
 
-      const doc = bodyHandler<T>(req.body, allowedFields);
       const processedData: Partial<U> = preProcessor(doc as T);
 
       const { id } = req.params;

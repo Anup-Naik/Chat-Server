@@ -7,7 +7,7 @@ export const setupSocketServer = (io: Server) => {
   io.on("connection", (socket: Socket) => {
     console.log(`User connected: ${socket.data.user.userId}`);
 
-    const userId = socket.data.user.userId;
+    const { userId } = socket.data;
     socket.join(`user:${userId}`); //UserRoom
 
     socket.on("message", (data) => {
