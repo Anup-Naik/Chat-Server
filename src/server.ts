@@ -1,33 +1,50 @@
+import { createServer } from "node:http";
+
 import dotenv from "dotenv";
 import { connect } from "mongoose";
 import { Server } from "socket.io";
-import { createServer } from "http";
+
 import app from "./app.js";
+import { ExpressError } from "./utils/customError.js";
+import * as Config from "./server.config.js";
 import { setupSocketServer } from "./controllers/chat.controller.js";
 
 dotenv.config();
-const requiredEnvVars = ["MONGO_URL", "JWT_SECRET"];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.error(`Missing required environment variable: ${envVar}`);
-    process.exit(1);
-  }
-}
+Config.validateEnv();
 
-connect(process.env.MONGO_URL as string)
-.then(() => {
-  console.log("Connected to DB");
-})
-.catch(console.error);
+connect(Config.db.mongoUrl)
+  .then(() => {
+    console.log("Connected to DB");
+  })
+  .catch(console.error);
 
 const server = createServer(app);
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin(requestOrigin, callback) {
+      if (!requestOrigin || Config.cors.whitelist.includes(requestOrigin)) {
+        callback(null, true);
+      } else {
+        callback(new ExpressError(403, "Not allowed by CORS"));
+      }
+    },
+  },
+});
 setupSocketServer(io);
 
-const PORT = Number(process.env.PORT) || 3000;
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`running server on ${PORT}`);
+server.listen(Config.server.port, Config.server.host, () => {
+  console.log(
+    `Server running on http://${Config.server.host}:${Config.server.port}`
+  );
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    io.close();
+    process.exit(0);
+  });
 });
 
 process.on("uncaughtException", (err) => {

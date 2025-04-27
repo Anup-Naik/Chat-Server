@@ -9,15 +9,15 @@ import groupRouter from "./routes/group.routes.js";
 
 import { customError, ExpressError } from "./utils/customError.js";
 import { authHttpMiddleware } from "./controllers/auth.controller.js";
+import * as Config from "./server.config.js";
 
 const app = express();
 
 app.use(helmet());
-const whitelist = ["http://127.0.0.1:5000"];
 app.use(
   cors({
     origin(requestOrigin, callback) {
-      if (!requestOrigin || whitelist.indexOf(requestOrigin) !== -1) {
+      if (!requestOrigin || Config.cors.whitelist.includes(requestOrigin)) {
         callback(null, true);
       } else {
         callback(new ExpressError(403, "Not allowed by CORS"));
@@ -30,7 +30,7 @@ app.use(ExpressMongoSanitize({ allowDots: true }));
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-app.options("*forAll",cors())
+app.options("*forAll", cors());
 app.use("/api/v1/", authRouter);
 app.use("/api/v1/users/", authHttpMiddleware, userRouter);
 app.use("/api/v1/groups/", authHttpMiddleware, groupRouter);
