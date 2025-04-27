@@ -21,6 +21,7 @@ connect(Config.db.mongoUrl)
 const server = createServer(app);
 
 const io = new Server(server, {
+  connectionStateRecovery: {},
   cors: {
     origin(requestOrigin, callback) {
       if (!requestOrigin || Config.cors.whitelist.includes(requestOrigin)) {

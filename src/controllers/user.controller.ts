@@ -13,7 +13,9 @@ const userValidator = (data: User): ReturnType<ValidatorHook<User>> => {
   return { isValid: true };
 };
 
-const userPreProcessor = (data: User): IUser => {
+const userPreProcessor = (userData: User): IUser => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { confirmPassword, ...data } = userData;
   const username = data?.username?.trim();
   const email = data?.email?.trim();
   const password = data?.password?.trim();

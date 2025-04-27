@@ -8,7 +8,7 @@ export const setupSocketServer = (io: Server) => {
     console.log(`User connected: ${socket.data.user.userId}`);
 
     const { userId } = socket.data;
-    socket.join(`user:${userId}`); //UserRoom
+    socket.join(`user:${userId}`);
 
     socket.on("message", (data) => {
       try {
@@ -37,15 +37,13 @@ export const setupSocketServer = (io: Server) => {
       }
     });
 
-    // Handle user joining a group
     socket.on("joinGroup", (groupId) => {
       socket.join(`group:${groupId}`);
       socket.emit("groupJoined", { groupId });
     });
 
-    // Handle disconnection
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.data.user.userId}`);
+      console.log(`User disconnected: ${socket.data.userId}`);
     });
   });
 };

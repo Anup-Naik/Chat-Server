@@ -81,6 +81,6 @@ export const login = async (
     return next(new ExpressError(400, "Email and Password Required"));
   }
   const user = await checkPassword(email, password);
-  const token = await createJWT(user._id);
+  const token = await createJWT({ userId: user._id });
   res.status(200).json({ status: "success", data: { token, data: user } });
 };
