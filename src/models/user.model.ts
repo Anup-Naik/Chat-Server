@@ -1,7 +1,8 @@
-import { Schema, UpdateQuery, model } from "mongoose";
-import { IUser } from "./model.js";
-import CRUD from "./CRUD.js";
+import { Schema, type UpdateQuery, model } from "mongoose";
 import bcrypt from "bcryptjs";
+
+import CRUD from "./CRUD.js";
+import type { IUser } from "./model.js";
 import { ExpressError } from "../utils/customError.js";
 
 const userSchema = new Schema<IUser>(
@@ -87,4 +88,5 @@ export const confirmPassword = async (email: string, password: string) => {
   }
   throw new ExpressError(401, "Invalid Email or Password");
 };
+
 export default new CRUD<IUser>(User);

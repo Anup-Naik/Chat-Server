@@ -1,6 +1,7 @@
 import { Schema, model, Types } from "mongoose";
-import { CascadeHook, IGroup } from "./model.js";
+
 import CRUD from "./CRUD.js";
+import type { CascadeHook, IGroup } from "./model.js";
 
 const groupSchema = new Schema<IGroup>(
   {
@@ -25,6 +26,7 @@ const groupSchema = new Schema<IGroup>(
 );
 
 const Group = model<IGroup>("Group", groupSchema);
+
 export const userCascader: CascadeHook = async (id: string) => {
   const userId = new Types.ObjectId(id);
   await Group.updateMany(
@@ -33,4 +35,5 @@ export const userCascader: CascadeHook = async (id: string) => {
   );
   await Group.deleteMany({ users: { $size: 0 } });
 };
+
 export default new CRUD<IGroup>(Group);

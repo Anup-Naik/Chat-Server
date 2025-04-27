@@ -1,6 +1,13 @@
-import { HydratedDocument, Model, Types, UpdateQuery } from "mongoose";
+import {
+  type HydratedDocument,
+  type Model,
+  type UpdateQuery,
+  RootFilterQuery,
+  Types,
+} from "mongoose";
+
+import type { Pagination, Sort } from "./model.js";
 import { ExpressError } from "../utils/customError.js";
-import { Pagination, Sort } from "./model.js";
 
 export default class CRUD<T> {
   constructor(private model: Model<T>) {}
@@ -24,17 +31,32 @@ export default class CRUD<T> {
     return doc;
   }
 
-  //IIIII FILTERING,POPULATE-PROJECTION IIIIII
+  async readFilteredOne(
+    filter: RootFilterQuery<T>,
+    pathPopulate: string = ""
+  ): Promise<HydratedDocument<T>> {
+    const query = this.model.findOne(filter);
+    if (pathPopulate) query.populate({ path: pathPopulate });
+    const doc = await query.exec();
+    if (!doc) {
+      throw new ExpressError(404, "ReadError:Entity Not Found");
+    }
+    return doc;
+  }
+
   async readAll(
+    filter: RootFilterQuery<T> = {},
     page: Pagination = { page: 0, limit: 10, skip: 0 },
     sort: Sort<T>,
-    pathPopulate: string = ""
+    pathPopulate: string = "",
+    populateSelect: string = ""
   ): Promise<HydratedDocument<T>[]> {
-    const query = this.model.find({});
+    const query = this.model.find(filter);
     query.skip(page.skip);
     query.limit(page.limit);
     query.sort(sort);
-    if (pathPopulate) query.populate({ path: pathPopulate });
+    if (pathPopulate)
+      query.populate({ path: pathPopulate, select: populateSelect });
     const docs = await query.exec();
 
     if (!docs.length) {

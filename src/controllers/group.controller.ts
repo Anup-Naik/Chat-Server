@@ -3,6 +3,7 @@ import type { IGroup } from "../models/model.js";
 import type { Group, ValidatorHook } from "./controller.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import Groups from "../models/group.model.js";
+import { Query } from "express-serve-static-core";
 
 const groupController = new ControllerApiFactory<Group, IGroup>(Groups);
 
@@ -34,9 +35,21 @@ export const createGroup = groupController.createDoc(
   groupPreProcessor
 );
 
-export const getGroup = groupController.getDoc('users');
+export const getGroup = groupController.getDoc("users");
+
+const groupFilter = (query: Query) => {
+  const q = query.filter;
+  if (!q || typeof q === "string" || q instanceof Array) {
+    return {};
+  }
+  if (q.userId && typeof q.userId === "string") {
+    return { users: q.userId };
+  }
+  return {};
+};
 
 export const getAllGroups = groupController.getAllDocs(
+  groupFilter,
   ["name", "users"],
   "users"
 );

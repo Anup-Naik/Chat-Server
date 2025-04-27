@@ -1,3 +1,7 @@
+import { config } from "dotenv";
+
+config();
+
 export const cors = { whitelist: ["http://127.0.0.1:5000"] };
 export const envVars = ["MONGO_URL", "JWT_SECRET"];
 
@@ -16,3 +20,7 @@ export const server = {
 };
 
 export const db = { mongoUrl: process.env.MONGO_URL! };
+
+export const auth = {
+  jwtSecret: process.env.JWT_SECRET!,
+};

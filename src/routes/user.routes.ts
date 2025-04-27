@@ -1,11 +1,12 @@
 import { Router } from "express";
+
+import catchAsync from "../utils/catchAsync.js";
 import {
   deleteUser,
   getAllUsers,
   getUser,
   updateUser,
 } from "../controllers/user.controller.js";
-import catchAsync from "../utils/catchAsync.js";
 
 const router = Router();
 

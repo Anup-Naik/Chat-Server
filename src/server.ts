@@ -1,6 +1,5 @@
 import { createServer } from "node:http";
 
-import dotenv from "dotenv";
 import { connect } from "mongoose";
 import { Server } from "socket.io";
 
@@ -9,7 +8,7 @@ import { ExpressError } from "./utils/customError.js";
 import * as Config from "./server.config.js";
 import { setupSocketServer } from "./controllers/chat.controller.js";
 
-dotenv.config();
+
 Config.validateEnv();
 
 connect(Config.db.mongoUrl)

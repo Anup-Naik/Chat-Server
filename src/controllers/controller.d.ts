@@ -1,3 +1,6 @@
+import { Query } from "express-serve-static-core";
+import { RootFilterQuery } from "mongoose";
+
 export interface User {
   username: string;
   email: string;
@@ -18,3 +21,5 @@ export type ValidatorHook<T> = (data: T) => {
 };
 
 export type PreProcessorHook<T,U> = (data: T) => U;
+
+export type filterBuilderHook<T> = (data:Query)=> RootFilterQuery<T>

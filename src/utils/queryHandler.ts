@@ -1,4 +1,4 @@
-import { Query } from "express-serve-static-core";
+import type { Query } from "express-serve-static-core";
 
 export const paginateHandler = (query: Query) => {
   const page = Number(query.page ?? 1);

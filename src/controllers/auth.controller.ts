@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from "express";
+import { ExtendedError, Socket } from "socket.io";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import jwt = require("jsonwebtoken");
-import { checkPassword, createUser } from "./user.controller.js";
+
+import * as Config from "../server.config.js";
 import { ExpressError } from "../utils/customError.js";
-import { ExtendedError, Socket } from "socket.io";
+import { checkPassword, createUser } from "./user.controller.js";
 
 export const createJWT = async (data: object) => {
-  const JWT = jwt.sign(data, process.env.JWT_SECRET!, {
+  const JWT = jwt.sign(data, Config.auth.jwtSecret, {
     algorithm: "HS256",
     expiresIn: "1h",
   });
@@ -24,7 +26,7 @@ export const authHttpMiddleware = (
 
   jwt.verify(
     req.headers.authorization.replace("Bearer", "").trim(),
-    process.env.JWT_SECRET!,
+    Config.auth.jwtSecret,
     function (err, data) {
       if (err) return next(new ExpressError(401, "Not LoggedIn"));
 
@@ -48,7 +50,7 @@ export const authSocketMiddleware = (
     return next(new ExpressError(401, "Not LoggedIn") as ExtendedError);
   }
 
-  jwt.verify(token, process.env.JWT_SECRET!, (err, data) => {
+  jwt.verify(token, Config.auth.jwtSecret, (err, data) => {
     if (err || !data || typeof data !== "object" || !data.userId)
       return next(new ExpressError(401, "Not Authenticated") as ExtendedError);
     socket.data.userId = data.userId;

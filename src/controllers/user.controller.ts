@@ -1,5 +1,7 @@
-import type { User, ValidatorHook } from "./controller.js";
 import type { IUser } from "../models/model.js";
+import type { Query } from "express-serve-static-core";
+import type { User, ValidatorHook } from "./controller.js";
+
 import Users, { confirmPassword } from "../models/user.model.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import { userCascader } from "../models/group.model.js";
@@ -31,7 +33,24 @@ export const createUser = userController.createDoc(
 
 export const getUser = userController.getDoc();
 
-export const getAllUsers = userController.getAllDocs(["username", "email"]);
+const userFilter = (query: Query) => {
+  const q = query.filter;
+  if (!q || typeof q === "string" || q instanceof Array) {
+    return {};
+  }
+  if (q.username && typeof q.username === "string") {
+    return { username: q.username };
+  }
+  if (q.email && typeof q.email === "string") {
+    return { email: q.email };
+  }
+  return {};
+};
+
+export const getAllUsers = userController.getAllDocs(userFilter, [
+  "username",
+  "email",
+]);
 
 export const updateUser = userController.updateDoc(
   ["username", "password", "email", "avatar"],

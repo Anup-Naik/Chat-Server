@@ -13,7 +13,11 @@
   "scripts": {
     "start": "node ./dist/server.js",
     "start:dev": "nodemon ./dist/server.js",
-    "watch:ts": "tsc --watch"
+    "watch:ts": "tsc --watch",
+    "build": "tsc",
+    "dev": "concurrently \"npm run watch:ts\" \"npm run start:dev\"",
+    "lint": "eslint --ext .ts src/",
+    "lint:fix": "eslint --fix --ext .ts src/"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -33,6 +37,7 @@
     "@types/express-serve-static-core": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.14.1",
+    "concurrently": "^9.1.2",
     "eslint": "^9.25.0",
     "globals": "^16.0.0",
     "nodemon": "^3.1.9",

@@ -1,4 +1,6 @@
 import { Router } from "express";
+
+import catchAsync from "../utils/catchAsync.js";
 import {
   createGroup,
   deleteGroup,
@@ -6,7 +8,6 @@ import {
   getGroup,
   updateGroup,
 } from "../controllers/group.controller.js";
-import catchAsync from "../utils/catchAsync.js";
 
 const router = Router();
 

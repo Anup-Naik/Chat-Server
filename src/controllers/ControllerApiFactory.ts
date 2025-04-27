@@ -1,13 +1,20 @@
 import { NextFunction, Request, Response } from "express";
+
+import CRUD from "../models/CRUD.js";
 import { ExpressError } from "../utils/customError.js";
+import type { CascadeHook } from "../models/model.js";
+
 import {
   paginateHandler,
   sortHandler,
   bodyHandler,
 } from "../utils/queryHandler.js";
-import CRUD from "../models/CRUD.js";
-import { PreProcessorHook, ValidatorHook } from "./controller.js";
-import { CascadeHook } from "../models/model.js";
+
+import type {
+  filterBuilderHook,
+  PreProcessorHook,
+  ValidatorHook,
+} from "./controller.js";
 
 export default class ControllerApiFactory<T, U> {
   constructor(private Model: CRUD<U>) {}
@@ -55,16 +62,28 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  getAllDocs(sortKeys: string[], populatePath?: string) {
+  getAllDocs(
+    filterBuilder: filterBuilderHook<U>,
+    sortKeys: string[],
+    populatePath?: string,
+    populateSelect?: string
+  ) {
     return async (
       req: Request,
       res: Response,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       next: NextFunction
     ) => {
+      const filter = filterBuilder(req.query);
       const page = paginateHandler(req.query);
       const sort = sortHandler<U>(req.query, sortKeys);
-      const docs = await this.Model.readAll(page, sort, populatePath);
+      const docs = await this.Model.readAll(
+        filter,
+        page,
+        sort,
+        populatePath,
+        populateSelect
+      );
       res
         .status(200)
         .json({ status: "success", data: { items: docs.length, data: docs } });
