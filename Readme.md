@@ -42,8 +42,8 @@ A real-time chat application built with Express.js, Socket.IO, and MongoDB, feat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/chat-server.git
-   cd chat-server
+   git clone https://github.com/Anup-Naik/Chat-Server.git
+   cd Chat-Server
    ```
 
 2. Install dependencies:
