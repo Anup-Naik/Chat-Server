@@ -55,7 +55,7 @@
     "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
     "removeComments": true,                           /* Disable emitting comments. */
     "noEmitOnError": true,                            /* Disable emitting files if any type checking errors are reported. */
-    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
     // "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
     // "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
     // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */

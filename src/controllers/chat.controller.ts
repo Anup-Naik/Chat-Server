@@ -105,10 +105,5 @@ export const setupSocketServer = (io: Server) => {
       publicKeyMap.delete(userId);
       console.log(`User disconnected: ${userId}`);
     });
-
-    socket.onAny((...args) => {
-      console.error("Invalid Event. Data Recieved" + args.join(", "));
-      socket.emit("error", { message: "Invalid Event" });
-    });
   });
 };

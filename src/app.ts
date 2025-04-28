@@ -1,6 +1,5 @@
 import cors from "cors";
 import helmet from "helmet";
-import ExpressMongoSanitize from "express-mongo-sanitize";
 import express, { NextFunction, Request, Response } from "express";
 
 import authRouter from "./routes/auth.routes.js";
@@ -25,7 +24,6 @@ app.use(
     },
   })
 );
-app.use(ExpressMongoSanitize({ allowDots: true }));
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));

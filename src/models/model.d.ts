@@ -16,6 +16,15 @@ export interface IGroup {
 }
 export type GroupDocument = HydratedDocument<IGroup>;
 
+export interface IMessage {
+  content: string;
+  sender: Types.ObjectId | IUser;
+  recipient: Types.ObjectId | IUser;
+  type: "User" | "Group";
+  createdAt: Date;
+}
+export type MessageDocument = HydratedDocument<IMessage>;
+
 export interface Pagination {
   limit: number;
   page: number;

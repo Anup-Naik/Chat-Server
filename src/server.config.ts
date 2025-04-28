@@ -16,7 +16,7 @@ export const validateEnv = () => {
 
 export const server = {
   port: Number(process.env.PORT) || 3000,
-  host: "127.0.0.1",
+  host: "0.0.0.0",
 };
 
 export const db = { mongoUrl: process.env.MONGO_URL! };
