@@ -10,6 +10,7 @@ export type UserDocument = HydratedDocument<IUser>;
 
 export interface IGroup {
   name: string;
+  admin: IUser | Types.ObjectId;
   avatar: string;
   users: Types.ObjectId[] | IUser[];
 }

@@ -26,7 +26,27 @@ const groupValidator = (data: Group): ReturnType<ValidatorHook<Group>> => {
 const groupPreProcessor = (data: Group): IGroup => {
   const users = data.users.map((val) => new Types.ObjectId(val as string));
   const name = data.name.trim();
-  return { ...data, name, users };
+  return { ...data, name, users, admin: users[0] };
+};
+
+
+const updateGroupValidator = (data: Group): ReturnType<ValidatorHook<Group>> => {
+  if(!data.name && !data.avatar){
+    return { isValid: false, error: "Provide Update Fields" };
+  }
+  if (!(5 <= data.name.length && data.name.length <= 10)) {
+    return {
+      isValid: false,
+      error: "GroupName Must be 5-10 Characters Long",
+    };
+  }
+  return { isValid: true };
+};
+
+const updateGroupPreProcessor = (data: Group): Partial<IGroup> => {
+  const name = data.name.trim();
+  const avatar = data.avatar.trim();
+  return { avatar, name };
 };
 
 export const createGroup = groupController.createDoc(
@@ -56,8 +76,8 @@ export const getAllGroups = groupController.getAllDocs(
 
 export const updateGroup = groupController.updateDoc(
   ["name", "avatar"],
-  groupValidator,
-  groupPreProcessor
+  updateGroupValidator,
+  updateGroupPreProcessor
 );
 
 export const deleteGroup = groupController.deleteDoc();

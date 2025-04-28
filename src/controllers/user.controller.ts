@@ -9,7 +9,7 @@ import { userCascader } from "../models/group.model.js";
 const userController = new ControllerApiFactory<User, IUser>(Users);
 
 const userValidator = (data: User): ReturnType<ValidatorHook<User>> => {
-  if (data?.password !== data?.confirmPassword) {
+  if (data.password !== data.confirmPassword) {
     return { isValid: false, error: "Passwords do not match" };
   }
   return { isValid: true };
@@ -22,6 +22,13 @@ const userPreProcessor = (userData: User): IUser => {
   const email = data?.email?.trim();
   const password = data?.password?.trim();
   return { ...data, username, email, password };
+};
+
+const userUpdateValidator = (data: User): ReturnType<ValidatorHook<User>> => {
+  if ((data.password && data.confirmPassword) && data.password !== data.confirmPassword) {
+    return { isValid: false, error: "Passwords do not match" };
+  }
+  return { isValid: true };
 };
 
 export const createUser = userController.createDoc(
@@ -54,7 +61,7 @@ export const getAllUsers = userController.getAllDocs(userFilter, [
 
 export const updateUser = userController.updateDoc(
   ["username", "password", "email", "avatar"],
-  userValidator,
+  userUpdateValidator,
   userPreProcessor
 );
 

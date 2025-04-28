@@ -15,6 +15,7 @@ const groupSchema = new Schema<IGroup>(
     avatar: {
       type: String,
     },
+    admin: { type: Types.ObjectId, ref: "User" },
     users: [
       {
         type: Types.ObjectId,
@@ -25,14 +26,13 @@ const groupSchema = new Schema<IGroup>(
   { timestamps: true, validateBeforeSave: true }
 );
 
+groupSchema.path("users").index(true);
+
 const Group = model<IGroup>("Group", groupSchema);
 
 export const userCascader: CascadeHook = async (id: string) => {
   const userId = new Types.ObjectId(id);
-  await Group.updateMany(
-    { users:  userId  },
-    { $pull: { users: userId } }
-  );
+  await Group.updateMany({ users: userId }, { $pull: { users: userId } });
   await Group.deleteMany({ users: { $size: 0 } });
 };
 

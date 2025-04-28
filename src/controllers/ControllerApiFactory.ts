@@ -93,7 +93,7 @@ export default class ControllerApiFactory<T, U> {
   updateDoc(
     allowedFields: string[],
     validator: ValidatorHook<T>,
-    preProcessor: PreProcessorHook<T, U>
+    preProcessor: PreProcessorHook<T, Partial<U>>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const doc = bodyHandler<T>(req.body, allowedFields);
