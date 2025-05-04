@@ -75,7 +75,7 @@ const User = model<IUser>("User", userSchema);
 export const confirmPassword = async (email: string, password: string) => {
   const user = await User.findOne(
     { email },
-    { password: 1, username: 1, avatar: 1, email: 1 }
+    { password: 1, username: 1, avatar: 1, email: 1, createdAt: 1 }
   );
   if (!user) {
     throw new ExpressError(404, "User Not Found");
@@ -83,7 +83,7 @@ export const confirmPassword = async (email: string, password: string) => {
   const isValid = await bcrypt.compare(password, user.password);
   if (isValid) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userData } = user;
+    const { password, ...userData } = user.toObject({ useProjection: true });
     return userData;
   }
   throw new ExpressError(401, "Invalid Email or Password");

@@ -25,15 +25,27 @@ export const authHttpMiddleware = (
   }
 
   jwt.verify(
-    req.headers.authorization.replace("Bearer", "").trim(),
+    req.headers?.authorization?.replace("Bearer", "").trim(),
     Config.auth.jwtSecret,
     function (err, data) {
       if (err) return next(new ExpressError(401, "Not LoggedIn"));
 
-      res.locals.user = (data as jwt.JwtPayload)?.userId;
+      res.locals.userId = (data as jwt.JwtPayload)?.userId;
       return next();
     }
   );
+};
+
+export const userAuthorization = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.params.id === res.locals.userId) {
+    next();
+  } else {
+    next(new ExpressError(401, "Not Authorized"));
+  }
 };
 
 export const authSocketMiddleware = (
@@ -41,7 +53,7 @@ export const authSocketMiddleware = (
   next: (err?: ExtendedError | undefined) => void
 ) => {
   let token: string = (socket.request.headers.jwt as string)
-    .replace("Bearer", "")
+    ?.replace("Bearer", "")
     .trim();
 
   token = token || socket.handshake.auth?.jwt;

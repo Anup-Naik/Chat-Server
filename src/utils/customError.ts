@@ -22,12 +22,12 @@ export function customError(err: unknown) {
     return new ExpressError(400, "Name or Email Already Exists");
   } else if (errMessage.includes("Enter a valid email")) {
     return new ExpressError(400, "Enter a valid email");
-  } else if (errMessage.includes("ValidationError: username")) {
+  } else if (errMessage.includes("username")) {
     return new ExpressError(400, "Enter Valid Username of length 5 to 10");
   } else if (errMessage.includes("Validation failed: name")) {
     return new ExpressError(400, "Enter Valid Name of length 5 to 10");
   } else if (err instanceof MongooseError && err.message) {
-    console.error(err);
+    console.error(err.message);
     return new ExpressError(400, "Error Saving to Database");
   } else {
     console.error(err);

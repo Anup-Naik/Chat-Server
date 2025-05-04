@@ -35,7 +35,7 @@ setupSocketServer(io);
 
 server.listen(Config.server.port, Config.server.host, () => {
   console.log(
-    `Server running on http://${Config.server.host}:${Config.server.port}`
+    `Server running on http://127.0.0.1:${Config.server.port}`
   );
 });
 

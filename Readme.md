@@ -3,6 +3,7 @@
 A real-time chat application built with Express.js, Socket.IO, and MongoDB, featuring user authentication, group chats, and direct messaging.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Installation](#installation)
@@ -41,12 +42,14 @@ A real-time chat application built with Express.js, Socket.IO, and MongoDB, feat
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/Anup-Naik/Chat-Server.git
    cd Chat-Server
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -54,11 +57,13 @@ A real-time chat application built with Express.js, Socket.IO, and MongoDB, feat
 3. Create a `.env` file in the root directory (see [Environment Setup](#environment-setup))
 
 4. Build the TypeScript files:
+
    ```bash
    npm run build
    ```
 
 5. Start the server:
+
    ```bash
    npm start
    ```
@@ -83,6 +88,7 @@ JWT_SECRET=your_jwt_secret_key
 ### Authentication
 
 #### Sign Up
+
 - **URL**: `/api/v1/signup`
 - **Method**: `POST`
 - **Body**:
@@ -112,6 +118,7 @@ JWT_SECRET=your_jwt_secret_key
   ```
 
 #### Login
+
 - **URL**: `/api/v1/login`
 - **Method**: `POST`
 - **Body**:
@@ -140,11 +147,13 @@ JWT_SECRET=your_jwt_secret_key
 ### Users
 
 All user endpoints require authentication. Include the JWT token in the request headers:
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 #### Get All Users
+
 - **URL**: `/api/v1/users/`
 - **Method**: `GET`
 - **Query Parameters**:
@@ -173,6 +182,7 @@ Authorization: Bearer <jwt_token>
   ```
 
 #### Get User by ID
+
 - **URL**: `/api/v1/users/:id`
 - **Method**: `GET`
 - **Response**:
@@ -191,6 +201,7 @@ Authorization: Bearer <jwt_token>
   ```
 
 #### Update User
+
 - **URL**: `/api/v1/users/:id`
 - **Method**: `PATCH`
 - **Body**:
@@ -218,6 +229,7 @@ Authorization: Bearer <jwt_token>
   ```
 
 #### Delete User
+
 - **URL**: `/api/v1/users/:id`
 - **Method**: `DELETE`
 - **Response**: Status 204 (No Content)
@@ -227,6 +239,7 @@ Authorization: Bearer <jwt_token>
 All group endpoints require authentication. Include the JWT token in the request headers as described above.
 
 #### Create Group
+
 - **URL**: `/api/v1/groups/`
 - **Method**: `POST`
 - **Body**:
@@ -253,6 +266,7 @@ All group endpoints require authentication. Include the JWT token in the request
   ```
 
 #### Get All Groups
+
 - **URL**: `/api/v1/groups/`
 - **Method**: `GET`
 - **Query Parameters**:
@@ -285,6 +299,7 @@ All group endpoints require authentication. Include the JWT token in the request
   ```
 
 #### Get Group by ID
+
 - **URL**: `/api/v1/groups/:id`
 - **Method**: `GET`
 - **Response**:
@@ -309,6 +324,7 @@ All group endpoints require authentication. Include the JWT token in the request
   ```
 
 #### Update Group
+
 - **URL**: `/api/v1/groups/:id`
 - **Method**: `PATCH`
 - **Body**:
@@ -334,6 +350,7 @@ All group endpoints require authentication. Include the JWT token in the request
   ```
 
 #### Delete Group
+
 - **URL**: `/api/v1/groups/:id`
 - **Method**: `DELETE`
 - **Response**: Status 204 (No Content)
@@ -345,30 +362,62 @@ The Chat-Server uses Socket.IO for real-time communication. Clients connect to t
 ### Connection Setup
 
 ```javascript
-const socket = io('http://localhost:3000', {
+const socket = io("http://localhost:3000", {
   auth: {
-    jwt: 'your_jwt_token'
-  }
+    jwt: "your_jwt_token",
+  },
 });
 ```
 
 ### Client Events
 
 #### Send Message
+
 ```javascript
-socket.emit('message', {
-  content: 'Hello world!',
-  recipient: 'user_id_or_group_id',
-  recipientType: 'user' // or 'group'
+socket.emit("message", {
+  content: "Hello world!",
+  recipient: "user_id_or_group_id",
+  recipientType: "user", // or 'group'
+});
+```
+#### Send Your PublicKey For End-to-End Encryption
+
+```js
+socket.on("publickey:request",()=>{
+  //Get Your PublicKey
+   socket.emit("publickey:response", your_public_key);
+})
+```
+
+#### Get Recipient PublicKey
+
+```js
+socket.emit("publickey:recipientkey", recipient);
+```
+```js
+socket.on("publickey:recipientkey",(recipientKey)=>{
+  //Your Code
+})
+```
+
+#### Send Encrypted Message
+
+```js
+socket.emit("encryptedSend", {
+  content: "your-encrypted-message",
+  recipient: "user_id",
+  recipientType: "user", // Currently Only for Users
 });
 ```
 
 #### Join Group
+
 ```javascript
-socket.emit('joinGroup', 'group_id');
+socket.emit("joinGroup", "group_id");
 ```
 
 #### Disconnect
+
 ```javascript
 socket.disconnect();
 ```
@@ -376,31 +425,35 @@ socket.disconnect();
 ### Server Events
 
 #### Receive Message
+
 ```javascript
-socket.on('message', (message) => {
-  console.log('New message:', message);
+socket.on("message", (message) => {
+  console.log("New message:", message);
   // message: { content, sender, recipient, recipientType, timestamp }
 });
 ```
 
 #### Message Sent Confirmation
+
 ```javascript
-socket.on('message:sent', (status) => {
-  console.log('Message sent:', status);
+socket.on("message:sent", (status) => {
+  console.log("Message sent:", status);
 });
 ```
 
 #### Group Joined
+
 ```javascript
-socket.on('groupJoined', (data) => {
-  console.log('Joined group:', data.groupId);
+socket.on("groupJoined", (data) => {
+  console.log("Joined group:", data.groupId);
 });
 ```
 
 #### Error Handling
+
 ```javascript
-socket.on('error', (error) => {
-  console.error('Socket error:', error);
+socket.on("error", (error) => {
+  console.error("Socket error:", error);
 });
 ```
 
@@ -445,6 +498,7 @@ chat-server/
 ## TypeScript Models
 
 ### User Model
+
 ```typescript
 interface IUser {
   username: string;
@@ -455,6 +509,7 @@ interface IUser {
 ```
 
 ### Group Model
+
 ```typescript
 interface IGroup {
   name: string;

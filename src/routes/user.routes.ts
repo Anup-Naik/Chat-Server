@@ -7,14 +7,15 @@ import {
   getUser,
   updateUser,
 } from "../controllers/user.controller.js";
+import { userAuthorization } from "../controllers/auth.controller.js";
 
 const router = Router();
 
 router.route("/").get(catchAsync(getAllUsers));
 router
   .route("/:id")
-  .get(catchAsync(getUser))
-  .patch(catchAsync(updateUser))
-  .delete(catchAsync(deleteUser));
+  .get(userAuthorization, catchAsync(getUser))
+  .patch(userAuthorization, catchAsync(updateUser))
+  .delete(userAuthorization, catchAsync(deleteUser));
 
 export default router;
