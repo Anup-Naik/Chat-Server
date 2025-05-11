@@ -18,10 +18,7 @@ export default class CRUD<T> {
     return newdoc;
   }
 
-  async readOne(
-    id: string,
-    populate?: Populate
-  ): Promise<HydratedDocument<T>> {
+  async readOne(id: string, populate?: Populate): Promise<HydratedDocument<T>> {
     const query = this.model.findById(id);
     if (populate?.length) query.populate(populate);
     const doc = await query.exec();
@@ -46,10 +43,13 @@ export default class CRUD<T> {
 
   async readAll(
     filter: RootFilterQuery<T> = {},
-    page: Pagination = { page: 0, limit: 10, skip: 0 },
-    sort: Sort<T>,
+    page?: Pagination,
+    sort?: Sort<T>,
     populate?: Populate
   ): Promise<HydratedDocument<T>[]> {
+    if (!page) {
+      page = { page: 0, limit: 10, skip: 0 };
+    }
     const query = this.model.find(filter);
     query.skip(page.skip);
     query.limit(page.limit);

@@ -9,7 +9,7 @@ export interface IUser {
 }
 export interface Contact {
   contact: IUser | IGroup | Types.ObjectId;
-  model_type: "User" | "Group";
+  type: "User" | "Group";
 }
 export type UserDocument = HydratedDocument<IUser>;
 

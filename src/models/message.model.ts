@@ -14,6 +14,6 @@ const messageSchema = new Schema<IMessage>({
 messageSchema.index({ sender: 1, recipient: 1, createdAt: -1 });
 messageSchema.index({ recipient: 1, type: 1, createdAt: -1 });
 
-const Message = model<IMessage>("Message", messageSchema);
+export const Message = model<IMessage>("Message", messageSchema);
 
 export default new CRUD(Message);

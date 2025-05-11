@@ -13,7 +13,7 @@ export interface User {
 
 export interface Contact {
   contact: User | Group | string;
-  model_type: "User" | "Group";
+  type: "User" | "Group";
 }
 
 export interface Group {
@@ -35,6 +35,11 @@ export type ValidatorHook<T> = (data: T) => {
   isValid: boolean;
   error?: string;
 };
+
+export type AsyncValidatorHook<T> = (data: T) => Promise<{
+  isValid: boolean;
+  error?: string;
+}>;
 
 export type PreProcessorHook<T, U> = (data: T) => U;
 

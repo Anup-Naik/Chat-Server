@@ -3,6 +3,7 @@ import type { IGroup } from "../models/model.js";
 import type { Group, PermissionHook, ValidatorHook } from "./controller.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import Groups from "../models/group.model.js";
+import Users from "../models/user.model.js";
 import { Query } from "express-serve-static-core";
 
 const groupController = new ControllerApiFactory<Group, IGroup>(Groups);
@@ -102,5 +103,19 @@ export const isGroupAdmin: PermissionHook = async (groupId, userId) => {
   if (group.admin) return true;
   return false;
 };
-export const addGroupMembers = groupController.addRefDoc("users");
+
+const memberValidator = async (users: string[]) => {
+  const userIds = users.map((user) => {
+    new Types.ObjectId(user);
+  });
+  const userDocs = await Users.readAll({ _id: { $in: userIds } });
+  if (!(userDocs.length === userIds.length)) {
+    return { isValid: false, error: "user/s not valid" };
+  }
+  return { isValid: true };
+};
+export const addGroupMembers = groupController.addRefDoc(
+  "users",
+  memberValidator
+);
 export const removeGroupMembers = groupController.removeRefDoc("users");

@@ -11,6 +11,7 @@ import {
 } from "../utils/queryHandler.js";
 
 import type {
+  AsyncValidatorHook,
   FilterBuilderHook,
   PopulateBuilderHook,
   PreProcessorHook,
@@ -124,7 +125,7 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  addRefDoc(prop: string) {
+  addRefDoc(prop: string, refDocValidator: AsyncValidatorHook<string[]>) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       if (!id) {
@@ -133,6 +134,10 @@ export default class ControllerApiFactory<T, U> {
       const refDocs = req.body[prop];
       if (!refDocs?.length) {
         return next(new ExpressError(400, `${prop} Required`));
+      }
+      const validity = await refDocValidator(refDocs);
+      if (!validity.isValid) {
+        return next(new ExpressError(400, validity.error));
       }
       const doc = await this.Model.addRefDoc(id, prop, refDocs);
       res.status(200).json({ status: "success", data: { data: doc } });

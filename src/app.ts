@@ -5,6 +5,7 @@ import express, { NextFunction, Request, Response } from "express";
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import groupRouter from "./routes/group.routes.js";
+import messageRouter from "./routes/message.routes.js";
 
 import { customError, ExpressError } from "./utils/customError.js";
 import { authHttpMiddleware } from "./controllers/auth.controller.js";
@@ -32,6 +33,7 @@ app.options("*forAll", cors());
 app.use("/api/v1/", authRouter);
 app.use("/api/v1/users/", authHttpMiddleware, userRouter);
 app.use("/api/v1/groups/", authHttpMiddleware, groupRouter);
+app.use("/api/v1/messages/", authHttpMiddleware, messageRouter);
 
 app.all("*catchAll", (req, res, next) => {
   next(new ExpressError(404, "Not Found"));

@@ -37,9 +37,9 @@ const userSchema = new Schema<IUser>(
       {
         contact: {
           type: Types.ObjectId,
-          refPath: "model_type",
+          refPath: "type",
         },
-        model_type: { type: String, enum: ["User", "Group"], required: true },
+        type: { type: String, enum: ["User", "Group"], required: true },
       },
     ],
   },
@@ -79,7 +79,7 @@ userSchema.pre("findOneAndUpdate", function (next) {
   }
 });
 
-const User = model<IUser>("User", userSchema);
+export const User = model<IUser>("User", userSchema);
 
 export const confirmPassword = async (email: string, password: string) => {
   const user = await User.findOne(

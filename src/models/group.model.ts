@@ -2,6 +2,8 @@ import { Schema, model, Types } from "mongoose";
 
 import CRUD from "./CRUD.js";
 import type { CascadeHook, IGroup } from "./model.js";
+import { User } from "./user.model.js";
+import { Message } from "./message.model.js";
 
 const groupSchema = new Schema<IGroup>(
   {
@@ -32,6 +34,13 @@ const Group = model<IGroup>("Group", groupSchema);
 
 export const userCascader: CascadeHook = async (id: string) => {
   const userId = new Types.ObjectId(id);
+  await User.updateMany(
+    { "contacts.contact": userId },
+    { $pull: { contacts: { contact: userId } } }
+  );
+  await Message.deleteMany({
+    $or: [{ sender: userId }, { recipient: userId }],
+  });
   await Group.updateMany({ users: userId }, { $pull: { users: userId } });
   await Group.deleteMany({ users: { $size: 0 } });
 };
