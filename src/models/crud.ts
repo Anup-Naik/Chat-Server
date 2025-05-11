@@ -6,7 +6,7 @@ import {
   Types,
 } from "mongoose";
 
-import type { Pagination, Sort } from "./model.js";
+import type { Pagination, Populate, Sort } from "./model.js";
 import { ExpressError } from "../utils/customError.js";
 
 export default class CRUD<T> {
@@ -20,10 +20,10 @@ export default class CRUD<T> {
 
   async readOne(
     id: string,
-    pathPopulate: string = ""
+    populate?: Populate
   ): Promise<HydratedDocument<T>> {
     const query = this.model.findById(id);
-    if (pathPopulate) query.populate({ path: pathPopulate });
+    if (populate?.length) query.populate(populate);
     const doc = await query.exec();
     if (!doc) {
       throw new ExpressError(404, "ReadError:Entity Not Found - " + id);
@@ -33,10 +33,10 @@ export default class CRUD<T> {
 
   async readFilteredOne(
     filter: RootFilterQuery<T>,
-    pathPopulate: string = ""
+    populate?: Populate
   ): Promise<HydratedDocument<T>> {
     const query = this.model.findOne(filter);
-    if (pathPopulate) query.populate({ path: pathPopulate });
+    if (populate?.length) query.populate(populate);
     const doc = await query.exec();
     if (!doc) {
       throw new ExpressError(404, "ReadError:Entity Not Found");
@@ -48,15 +48,13 @@ export default class CRUD<T> {
     filter: RootFilterQuery<T> = {},
     page: Pagination = { page: 0, limit: 10, skip: 0 },
     sort: Sort<T>,
-    pathPopulate: string = "",
-    populateSelect: string = ""
+    populate?: Populate
   ): Promise<HydratedDocument<T>[]> {
     const query = this.model.find(filter);
     query.skip(page.skip);
     query.limit(page.limit);
     query.sort(sort);
-    if (pathPopulate)
-      query.populate({ path: pathPopulate, select: populateSelect });
+    if (populate?.length) query.populate(populate);
     const docs = await query.exec();
 
     if (!docs.length) {
@@ -90,7 +88,7 @@ export default class CRUD<T> {
 
   async addRefDoc(
     id: string,
-    prop: keyof T,
+    prop: string,
     refDocs: string[]
   ): Promise<HydratedDocument<T>> {
     const newRefDocs = refDocs
@@ -118,7 +116,7 @@ export default class CRUD<T> {
 
   async removeRefDoc(
     id: string,
-    prop: keyof T,
+    prop: string,
     refDocs: string[]
   ): Promise<HydratedDocument<T>> {
     const newRefDocs = refDocs

@@ -6,8 +6,8 @@ import type { IMessage } from "./model.js";
 const messageSchema = new Schema<IMessage>({
   content: { type: String, required: true },
   sender: { type: Types.ObjectId, ref: "User" },
-  recipient: { type: Types.ObjectId, ref: "User" },
-  type: { type: String, enum: ["User", "Group"] },
+  recipient: { type: Types.ObjectId, refPath: "type" },
+  type: { type: String, enum: ["User", "Group"], required: true },
   createdAt: { type: Date, default: Date.now, expires: 86400000 },
 });
 

@@ -1,16 +1,21 @@
 import { Server, Socket } from "socket.io";
 import { authSocketMiddleware } from "./auth.controller.js";
 import { errorHandler } from "../utils/socketErrorHandler.js";
+import { Message } from "./controller.js";
+import { createMessage } from "./message.controller.js";
 const publicKeyMap = new Map();
 export const setupSocketServer = (io: Server) => {
+  //Auth
   io.use(authSocketMiddleware);
 
+  //User Connection
   io.on("connection", (socket: Socket) => {
     const { userId } = socket.data;
     socket.join(`user:${userId}`);
 
     console.log(`User connected: ${userId}`);
-
+    
+    //Getting User Public Key for e-to-e encryption
     socket.emit("publickey:request");
     socket.on(
       "publickey:response",
@@ -29,6 +34,7 @@ export const setupSocketServer = (io: Server) => {
       )
     );
 
+     //Request for Recipient Public Key
     socket.on(
       "publickey:recipientkey",
       errorHandler(
@@ -44,20 +50,17 @@ export const setupSocketServer = (io: Server) => {
       )
     );
 
+    //Private Messaging
     socket.on(
       "message:encryptedSend",
       errorHandler(
-        (data) => {
-          if (!data || !data.encryptedContent || !data.recipient) {
-            socket.emit("error", { message: "Invalid message format" });
-            return;
-          }
-
-          const enrichedMessage = {
-            ...data,
-            sender: userId,
-            timestamp: new Date(),
-          };
+        async (data) => {
+          const { content, recipient } = data;
+          const enrichedMessage: Message = await createMessage(
+            { content, recipient },
+            userId,
+            false
+          );
 
           io.to(`user:${data.recipient}`).emit("message", enrichedMessage);
           socket.emit("message:sent", {
@@ -69,20 +72,27 @@ export const setupSocketServer = (io: Server) => {
       )
     );
 
+     //normalMessage
     socket.on(
       "message",
       errorHandler(
-        (data) => {
-          if (!data || !data.content || !data.recipient) {
+        async (data) => {
+          if (
+            !data ||
+            !data.content ||
+            !data.recipient ||
+            !data.recipientType
+          ) {
             throw new Error("Invalid message format");
           }
-          const enrichedMessage = {
-            ...data,
-            sender: userId,
-            timestamp: new Date(),
-          };
+          const { content, recipient, recipientType } = data;
+          const enrichedMessage: Message = await createMessage(
+            { content, recipient, type: recipientType },
+            userId,
+            true
+          );
 
-          if (data.recipientType === "group") {
+          if (recipientType === "group") {
             io.to(`group:${data.recipient}`).emit("message", enrichedMessage);
           } else {
             io.to(`user:${data.recipient}`).emit("message", enrichedMessage);

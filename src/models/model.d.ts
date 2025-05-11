@@ -5,6 +5,11 @@ export interface IUser {
   email: string;
   password: string;
   avatar: string;
+  contacts?: Contact[];
+}
+export interface Contact {
+  contact: IUser | IGroup | Types.ObjectId;
+  model_type: "User" | "Group";
 }
 export type UserDocument = HydratedDocument<IUser>;
 
@@ -19,7 +24,7 @@ export type GroupDocument = HydratedDocument<IGroup>;
 export interface IMessage {
   content: string;
   sender: Types.ObjectId | IUser;
-  recipient: Types.ObjectId | IUser;
+  recipient: Types.ObjectId | IUser | IGroup;
   type: "User" | "Group";
   createdAt: Date;
 }
@@ -30,6 +35,11 @@ export interface Pagination {
   page: number;
   skip: number;
 }
+
+export type Populate = {
+  path: string;
+  select: string;
+}[];
 
 export type Sort<T> = {
   [key in keyof Partial<T>]: 1 | -1;

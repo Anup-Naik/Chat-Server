@@ -21,11 +21,15 @@ const userPreProcessor = (userData: User): IUser => {
   const username = data?.username?.trim();
   const email = data?.email?.trim();
   const password = data?.password?.trim();
-  return { ...data, username, email, password };
+  return { ...data, username, email, password } as IUser;
 };
 
 const userUpdateValidator = (data: User): ReturnType<ValidatorHook<User>> => {
-  if ((data.password && data.confirmPassword) && data.password !== data.confirmPassword) {
+  if (
+    data.password &&
+    data.confirmPassword &&
+    data.password !== data.confirmPassword
+  ) {
     return { isValid: false, error: "Passwords do not match" };
   }
   return { isValid: true };
@@ -38,19 +42,23 @@ export const createUser = userController.createDoc(
   true
 );
 
-export const getUser = userController.getDoc();
+const userPopulater = (query: Query) => {
+  const p = query.populate;
+  if (!p || typeof p === "string" || p instanceof Array) return [];
+  if (p.contacts) return [{ path: "contacts", select: "" }];
+  return [];
+};
+export const getUser = userController.getDoc(userPopulater);
 
 const userFilter = (query: Query) => {
   const q = query.filter;
-  if (!q || typeof q === "string" || q instanceof Array) {
-    return {};
-  }
-  if (q.username && typeof q.username === "string") {
+  if (!q || typeof q === "string" || q instanceof Array) return {};
+
+  if (q.username && typeof q.username === "string")
     return { username: q.username };
-  }
-  if (q.email && typeof q.email === "string") {
-    return { email: q.email };
-  }
+
+  if (q.email && typeof q.email === "string") return { email: q.email };
+
   return {};
 };
 

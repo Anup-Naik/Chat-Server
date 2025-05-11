@@ -6,6 +6,7 @@ import jwt = require("jsonwebtoken");
 import * as Config from "../server.config.js";
 import { ExpressError } from "../utils/customError.js";
 import { checkPassword, createUser } from "./user.controller.js";
+import { isGroupAdmin } from "./group.controller.js";
 
 export const createJWT = async (data: object) => {
   const JWT = jwt.sign(data, Config.auth.jwtSecret, {
@@ -41,13 +42,24 @@ export const userAuthorization = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.params.id === res.locals.userId) {
+  if (req.params.id && req.params.id === res.locals.userId) {
     next();
   } else {
-    next(new ExpressError(401, "Not Authorized"));
+    next(new ExpressError(403, "Not Authorized"));
   }
 };
 
+export const groupAuthorization = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (await isGroupAdmin(req.params.id, res.locals.userId)) {
+    next();
+  } else {
+    next(new ExpressError(403, "Not Authorized"));
+  }
+};
 export const authSocketMiddleware = (
   socket: Socket,
   next: (err?: ExtendedError | undefined) => void

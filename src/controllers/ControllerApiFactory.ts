@@ -11,7 +11,8 @@ import {
 } from "../utils/queryHandler.js";
 
 import type {
-  filterBuilderHook,
+  FilterBuilderHook,
+  PopulateBuilderHook,
   PreProcessorHook,
   ValidatorHook,
 } from "./controller.js";
@@ -51,22 +52,22 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  getDoc(populatePath?: string) {
+  getDoc(populateBuilder?: PopulateBuilderHook) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       if (!id) {
         return next(new ExpressError(400, "Invalid Id"));
       }
-      const doc = await this.Model.readOne(id, populatePath);
+      const populate = populateBuilder?.(req.query);
+      const doc = await this.Model.readOne(id, populate);
       res.status(200).json({ status: "success", data: { data: doc } });
     };
   }
 
   getAllDocs(
-    filterBuilder: filterBuilderHook<U>,
+    filterBuilder: FilterBuilderHook<U>,
     sortKeys: string[],
-    populatePath?: string,
-    populateSelect?: string
+    populateBuilder?: PopulateBuilderHook
   ) {
     return async (
       req: Request,
@@ -77,13 +78,8 @@ export default class ControllerApiFactory<T, U> {
       const filter = filterBuilder(req.query);
       const page = paginateHandler(req.query);
       const sort = sortHandler<U>(req.query, sortKeys);
-      const docs = await this.Model.readAll(
-        filter,
-        page,
-        sort,
-        populatePath,
-        populateSelect
-      );
+      const populate = populateBuilder?.(req.query);
+      const docs = await this.Model.readAll(filter, page, sort, populate);
       res
         .status(200)
         .json({ status: "success", data: { items: docs.length, data: docs } });
@@ -125,6 +121,36 @@ export default class ControllerApiFactory<T, U> {
       if (cascader) await cascader(id);
       await this.Model.deleteOne(id);
       res.status(204).json({ status: "success", data: {} });
+    };
+  }
+
+  addRefDoc(prop: string) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      if (!id) {
+        return next(new ExpressError(400, "Invalid Id"));
+      }
+      const refDocs = req.body[prop];
+      if (!refDocs?.length) {
+        return next(new ExpressError(400, `${prop} Required`));
+      }
+      const doc = await this.Model.addRefDoc(id, prop, refDocs);
+      res.status(200).json({ status: "success", data: { data: doc } });
+    };
+  }
+
+  removeRefDoc(prop: string) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      if (!id) {
+        return next(new ExpressError(400, "Invalid Id"));
+      }
+      const refDocs = req.body[prop];
+      if (!refDocs?.length) {
+        return next(new ExpressError(400, `${prop} Required`));
+      }
+      const doc = await this.Model.removeRefDoc(id, prop, refDocs);
+      res.status(200).json({ status: "success", data: { data: doc } });
     };
   }
 }

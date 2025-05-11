@@ -1,4 +1,4 @@
-import { Schema, type UpdateQuery, model } from "mongoose";
+import { Schema, Types, type UpdateQuery, model } from "mongoose";
 import bcrypt from "bcryptjs";
 
 import CRUD from "./CRUD.js";
@@ -33,6 +33,15 @@ const userSchema = new Schema<IUser>(
     avatar: {
       type: String,
     },
+    contacts: [
+      {
+        contact: {
+          type: Types.ObjectId,
+          refPath: "model_type",
+        },
+        model_type: { type: String, enum: ["User", "Group"], required: true },
+      },
+    ],
   },
   { timestamps: true, validateBeforeSave: true }
 );
@@ -86,7 +95,7 @@ export const confirmPassword = async (email: string, password: string) => {
     const { password, ...userData } = user.toObject({ useProjection: true });
     return userData;
   }
-  throw new ExpressError(401, "Invalid Email or Password");
+  throw new ExpressError(400, "Invalid Email or Password");
 };
 
 export default new CRUD<IUser>(User);

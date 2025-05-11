@@ -28,7 +28,7 @@ export function customError(err: unknown) {
     return new ExpressError(400, "Enter Valid Name of length 5 to 10");
   } else if (err instanceof MongooseError && err.message) {
     console.error(err.message);
-    return new ExpressError(400, "Error Saving to Database");
+    return new ExpressError(400, "Database Error");
   } else {
     console.error(err);
     return new ExpressError();
