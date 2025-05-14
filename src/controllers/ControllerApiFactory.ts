@@ -89,13 +89,13 @@ export default class ControllerApiFactory<T, U> {
 
   updateDoc(
     allowedFields: string[],
-    validator: ValidatorHook<T>,
+    validator: ValidatorHook<T> | AsyncValidatorHook<T>,
     preProcessor: PreProcessorHook<T, Partial<U>>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const doc = bodyHandler<T>(req.body, allowedFields);
 
-      const validity = validator(doc as T);
+      const validity =  await validator(doc as T);
       if (!validity.isValid) {
         return next(
           new ExpressError(400, validity.error || "Validation Failed")

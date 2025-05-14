@@ -1,6 +1,6 @@
 import type { IUser } from "../models/model.js";
 import type { Query } from "express-serve-static-core";
-import type { User, ValidatorHook } from "./controller.js";
+import type { AsyncValidatorHook, User, ValidatorHook } from "./controller.js";
 
 import Users, { confirmPassword } from "../models/user.model.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
@@ -24,15 +24,24 @@ const userPreProcessor = (userData: User): IUser => {
   return { ...data, username, email, password } as IUser;
 };
 
-const userUpdateValidator = (data: User): ReturnType<ValidatorHook<User>> => {
+const userUpdateValidator = async (
+  data: User
+): ReturnType<AsyncValidatorHook<User>> => {
   if (
-    data.password &&
-    data.confirmPassword &&
-    data.password !== data.confirmPassword
-  ) {
+    !data.email ||
+    !data.password ||
+    !data.confirmPassword ||
+    !data.oldPassword
+  )
+    return {
+      isValid: false,
+      error: "email, password, confirmPassword and oldPassword Required",
+    };
+  if (data.password !== data.confirmPassword)
     return { isValid: false, error: "Passwords do not match" };
-  }
-  return { isValid: true };
+  const user = await confirmPassword(data.email, data.oldPassword);
+  if (user) return { isValid: true };
+  return { isValid: false };
 };
 
 export const createUser = userController.createDoc(
@@ -76,3 +85,9 @@ export const updateUser = userController.updateDoc(
 export const deleteUser = userController.deleteDoc(userCascader);
 
 export const checkPassword = confirmPassword;
+
+// const contactValidator = async()=>{
+
+// }
+
+// export const addContact = userController.addRefDoc('contacts',contactValidator)

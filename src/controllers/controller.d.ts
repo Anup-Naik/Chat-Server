@@ -7,6 +7,7 @@ export interface User {
   email: string;
   password: string;
   confirmPassword?: string;
+  oldPassword?: string;
   avatar: string;
   contacts: Contact[];
 }
