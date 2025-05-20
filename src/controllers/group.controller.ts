@@ -114,7 +114,7 @@ const memberValidator = async (users: string[]) => {
   }
   return { isValid: true };
 };
-export const addGroupMembers = groupController.addRefDoc(
+export const addGroupMembers = groupController.addRefDoc<string[]>(
   "users",
   memberValidator
 );

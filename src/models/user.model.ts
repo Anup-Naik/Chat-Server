@@ -1,8 +1,9 @@
 import { Schema, Types, type UpdateQuery, model } from "mongoose";
 import bcrypt from "bcryptjs";
 
-import CRUD from "./CRUD.js";
-import type { IUser } from "./model.js";
+import CRUD from "./crud.js";
+import Groups from "./group.model.js";
+import type { Contact, IUser } from "./model.js";
 import { ExpressError } from "../utils/customError.js";
 
 const userSchema = new Schema<IUser>(
@@ -96,6 +97,35 @@ export const confirmPassword = async (email: string, password: string) => {
     return userData;
   }
   throw new ExpressError(400, "Invalid Email or Password");
+};
+
+export const addContact = async (id: string, contact: Contact) => {
+  if (contact.type === "Group") {
+    const group = await Groups.readFilteredOne({ _id: contact.contact });
+    if (!group) throw new ExpressError(404, "Group Contact does not exist");
+    else {
+      const user = await User.updateOne({ _id: id }, { $addToSet: contact });
+      return user;
+    }
+  } else if (contact.type === "User") {
+    const user = await User.findById(contact.contact);
+    if (!user) throw new ExpressError(404, "User Contact does not exist");
+    else {
+      const user = await User.updateOne({ _id: id }, { $addToSet: contact });
+      return user;
+    }
+  }
+};
+
+export const removeContact = async (id: string, contactId: Types.ObjectId) => {
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      $pull: { "contacts.contact": contactId },
+    },
+    { new: true }
+  );
+  return user;
 };
 
 export default new CRUD<IUser>(User);

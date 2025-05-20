@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import CRUD from "../models/CRUD.js";
+import CRUD from "../models/crud.js";
 import { ExpressError } from "../utils/customError.js";
 import type { CascadeHook } from "../models/model.js";
 
@@ -125,7 +125,7 @@ export default class ControllerApiFactory<T, U> {
     };
   }
 
-  addRefDoc(prop: string, refDocValidator: AsyncValidatorHook<string[]>) {
+  addRefDoc<A>(prop: string, refDocValidator: AsyncValidatorHook<A>) {
     return async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       if (!id) {

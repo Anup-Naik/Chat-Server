@@ -1,10 +1,22 @@
 import type { IUser } from "../models/model.js";
 import type { Query } from "express-serve-static-core";
-import type { AsyncValidatorHook, User, ValidatorHook } from "./controller.js";
+import type {
+  AsyncValidatorHook,
+  Contact,
+  User,
+  ValidatorHook,
+} from "./controller.js";
 
-import Users, { confirmPassword } from "../models/user.model.js";
+import Users, {
+  addContact,
+  confirmPassword,
+  removeContact,
+} from "../models/user.model.js";
 import ControllerApiFactory from "./ControllerApiFactory.js";
 import { userCascader } from "../models/group.model.js";
+import { NextFunction, Request, Response } from "express";
+import { ExpressError } from "../utils/customError.js";
+import { Types } from "mongoose";
 
 const userController = new ControllerApiFactory<User, IUser>(Users);
 
@@ -86,8 +98,46 @@ export const deleteUser = userController.deleteDoc(userCascader);
 
 export const checkPassword = confirmPassword;
 
-// const contactValidator = async()=>{
+export const addContactHttp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = res.locals.userId;
+  if (!id) {
+    return next(new ExpressError(400, "Invalid Id"));
+  }
+  const contact: Contact = req.body.contact;
+  if (
+    !contact ||
+    !contact.contact ||
+    !contact.type ||
+    !Types.ObjectId.isValid(contact.contact as string)
+  ) {
+    return next(new ExpressError(400, "Valid Contact required"));
+  }
+  const newContact = {
+    ...contact,
+    contact: new Types.ObjectId(contact.contact as string),
+  };
+  const user = await addContact(id, newContact);
+  res.status(200).json({ status: "success", data: user });
+};
 
-// }
+export const removeContactHttp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = res.locals.userId;
+  if (!id) {
+    return next(new ExpressError(400, "Invalid Id"));
+  }
+  const { contactId } = req.body;
+  if (!contactId || !Types.ObjectId.isValid(contactId)) {
+    return next(new ExpressError(400, "Valid ContactId required"));
+  }
 
-// export const addContact = userController.addRefDoc('contacts',contactValidator)
+  const user = await removeContact(id, contactId);
+  res.status(204).json({ status: "success", data: user });
+};

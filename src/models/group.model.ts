@@ -1,6 +1,6 @@
 import { Schema, model, Types } from "mongoose";
 
-import CRUD from "./CRUD.js";
+import CRUD from "./crud.js";
 import type { CascadeHook, IGroup } from "./model.js";
 import { User } from "./user.model.js";
 import { Message } from "./message.model.js";
