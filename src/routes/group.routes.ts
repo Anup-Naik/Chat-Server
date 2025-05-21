@@ -24,5 +24,5 @@ router
 router
   .route("/:id/users")
   .post(catchAsync(groupAuthorization), catchAsync(addGroupMembers))
-  .patch(catchAsync(groupAuthorization), catchAsync(removeGroupMembers));
+  .delete(catchAsync(groupAuthorization), catchAsync(removeGroupMembers));
 export default router;

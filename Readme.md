@@ -234,6 +234,39 @@ Authorization: Bearer <jwt_token>
 - **Method**: `DELETE`
 - **Response**: Status 204 (No Content)
 
+#### Add Contact
+
+- **URL**:`/api/v1/users/:id/contacts`
+- **Method**:`POST`
+- **Body**:
+  ```json
+    {
+      "contact":{
+        "contact":"contact_id",
+        "type": "User" | "Group"
+      }
+    }
+  ```
+- **Response**:
+  ```json
+  {
+    "status":"success",
+    "data":{
+      "message":"Contact Added"
+    }
+  }
+  ```
+
+#### Delete Contact
+
+- **URL**: `/api/v1/users/:id/contacts`
+- **Method**: `DELETE`
+- **Body**:
+  ```json
+  { "contactId": "contact_id" }
+  ```
+- **Response**: Status 204 (No Content)
+
 ### Groups
 
 All group endpoints require authentication. Include the JWT token in the request headers as described above.
@@ -355,6 +388,30 @@ All group endpoints require authentication. Include the JWT token in the request
 - **Method**: `DELETE`
 - **Response**: Status 204 (No Content)
 
+#### Add Members
+
+- **URL**: `/api/v1/groups/:id/users`
+- **Method**:`POST`
+- **Body**:
+
+  ```json
+    {
+      "users":["user_id","user_id" ...]
+    }
+  ```
+
+#### Remove Members
+
+- **URL**: `/api/v1/groups/:id/users`
+- **Method**:`DELETE`
+- **Body**:
+  ```json
+    {
+      "users":["user_id","user_id" ...]
+    }
+  ```
+- **Response**: Status 204 (No Content)
+
 ## Socket.IO Events
 
 The Chat-Server uses Socket.IO for real-time communication. Clients connect to the server using a JWT token for authentication.
@@ -380,13 +437,14 @@ socket.emit("message", {
   recipientType: "user", // or 'group'
 });
 ```
+
 #### Send Your PublicKey For End-to-End Encryption
 
 ```js
-socket.on("publickey:request",()=>{
+socket.on("publickey:request", () => {
   //Get Your PublicKey
-   socket.emit("publickey:response", your_public_key);
-})
+  socket.emit("publickey:response", your_public_key);
+});
 ```
 
 #### Get Recipient PublicKey
@@ -394,10 +452,11 @@ socket.on("publickey:request",()=>{
 ```js
 socket.emit("publickey:recipientkey", recipient);
 ```
+
 ```js
-socket.on("publickey:recipientkey",(recipientKey)=>{
+socket.on("publickey:recipientkey", (recipientKey) => {
   //Your Code
-})
+});
 ```
 
 #### Send Encrypted Message

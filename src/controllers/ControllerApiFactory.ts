@@ -154,8 +154,8 @@ export default class ControllerApiFactory<T, U> {
       if (!refDocs?.length) {
         return next(new ExpressError(400, `${prop} Required`));
       }
-      const doc = await this.Model.removeRefDoc(id, prop, refDocs);
-      res.status(200).json({ status: "success", data: { data: doc } });
+      await this.Model.removeRefDoc(id, prop, refDocs);
+      res.status(204).json({ status: "success", data: { message: "Removed docs" } });
     };
   }
 }
