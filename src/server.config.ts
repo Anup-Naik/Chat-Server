@@ -2,8 +2,10 @@ import { config } from "dotenv";
 
 config();
 
-export const cors = { whitelist: ["http://127.0.0.1:5000","http://localhost:4200"] };
-export const envVars = ["MONGO_URL", "JWT_SECRET"];
+export const cors = {
+  whitelist: ["http://127.0.0.1:5000", "http://localhost:4200"],
+};
+export const envVars = ["MONGO_URL", "JWT_SECRET", "PORT"];
 
 export const validateEnv = () => {
   for (const envVar of envVars) {

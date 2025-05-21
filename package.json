@@ -4,7 +4,8 @@
   "description": "A Chat App",
   "keywords": [
     "Chat",
-    "Chat App"
+    "Chat-App",
+    "Chat-Server"
   ],
   "license": "MIT",
   "author": "Anup Naik",

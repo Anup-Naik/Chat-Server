@@ -39,21 +39,24 @@ const userPreProcessor = (userData: User): IUser => {
 const userUpdateValidator = async (
   data: User
 ): ReturnType<AsyncValidatorHook<User>> => {
-  if (
-    !data.email ||
-    !data.password ||
-    !data.confirmPassword ||
-    !data.oldPassword
-  )
-    return {
-      isValid: false,
-      error: "email, password, confirmPassword and oldPassword Required",
-    };
-  if (data.password !== data.confirmPassword)
-    return { isValid: false, error: "Passwords do not match" };
-  const user = await confirmPassword(data.email, data.oldPassword);
-  if (user) return { isValid: true };
-  return { isValid: false };
+  if (data.password) {
+    if (
+      !data.email ||
+      !data.password ||
+      !data.confirmPassword ||
+      !data.oldPassword
+    )
+      return {
+        isValid: false,
+        error: "email, password, confirmPassword and oldPassword Required",
+      };
+    if (data.password !== data.confirmPassword)
+      return { isValid: false, error: "Passwords do not match" };
+    const user = await confirmPassword(data.email, data.oldPassword);
+    if (user) return { isValid: true };
+  }
+
+  return { isValid: true };
 };
 
 export const createUser = userController.createDoc(
@@ -89,7 +92,7 @@ export const getAllUsers = userController.getAllDocs(userFilter, [
 ]);
 
 export const updateUser = userController.updateDoc(
-  ["username", "password", "email", "avatar"],
+  ["username", "password", "confirmPassword", "oldPassword", "email", "avatar"],
   userUpdateValidator,
   userPreProcessor
 );
@@ -120,8 +123,10 @@ export const addContactHttp = async (
     ...contact,
     contact: new Types.ObjectId(contact.contact as string),
   };
-  const user = await addContact(id, newContact);
-  res.status(200).json({ status: "success", data: user });
+  await addContact(id, newContact);
+  res
+    .status(200)
+    .json({ status: "success", data: { message: "Contact Added" } });
 };
 
 export const removeContactHttp = async (

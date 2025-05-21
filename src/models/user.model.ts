@@ -100,18 +100,30 @@ export const confirmPassword = async (email: string, password: string) => {
 };
 
 export const addContact = async (id: string, contact: Contact) => {
+  const exists = await User.findOne({
+    _id: id,
+    "contacts.contact": contact.contact,
+  });
+  if (exists) throw new ExpressError(400, "Contact already exist");
+
   if (contact.type === "Group") {
     const group = await Groups.readFilteredOne({ _id: contact.contact });
     if (!group) throw new ExpressError(404, "Group Contact does not exist");
     else {
-      const user = await User.updateOne({ _id: id }, { $addToSet: contact });
+      const user = await User.updateOne(
+        { _id: id },
+        { $addToSet: { contacts: contact } }
+      );
       return user;
     }
   } else if (contact.type === "User") {
     const user = await User.findById(contact.contact);
     if (!user) throw new ExpressError(404, "User Contact does not exist");
     else {
-      const user = await User.updateOne({ _id: id }, { $addToSet: contact });
+      const user = await User.updateOne(
+        { _id: id },
+        { $addToSet: { contacts: contact } }
+      );
       return user;
     }
   }
@@ -121,7 +133,7 @@ export const removeContact = async (id: string, contactId: Types.ObjectId) => {
   const user = await User.findByIdAndUpdate(
     id,
     {
-      $pull: { "contacts.contact": contactId },
+      $pull: { contacts: { contact: contactId } },
     },
     { new: true }
   );

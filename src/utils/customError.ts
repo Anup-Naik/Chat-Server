@@ -11,7 +11,7 @@ export class ExpressError extends Error {
 
 export function customError(err: unknown) {
   const errMessage = err instanceof Error ? err.message : "";
-  console.error(errMessage);
+  console.error(err);
   if (err instanceof ExpressError) {
     return err;
   } else if (errMessage.includes("SyntaxError")) {
@@ -27,10 +27,8 @@ export function customError(err: unknown) {
   } else if (errMessage.includes("Validation failed: name")) {
     return new ExpressError(400, "Enter Valid Name of length 5 to 10");
   } else if (err instanceof MongooseError && err.message) {
-    console.error(err.message);
     return new ExpressError(400, "Database Error");
   } else {
-    console.error(err);
     return new ExpressError();
   }
 }
